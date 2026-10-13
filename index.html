@@ -24,6 +24,7 @@
     --bar: #c0392b;       /* 순위 막대 (한 가지 색) */
     --board: #fbe9c8;     /* 말판 */
     --board-line: #8a5a2f;
+    --start: #a8682f;     /* 말판 출발 칸 (진한 색) */
     --warn-bg: #fde2dc;
     --good-bg: #dff3e4;
     --water: #8cc8f0;     /* 퐁당 */
@@ -45,7 +46,7 @@
       --wood-light: #e8cc95; --wood-dark: #9a5e29; --wood-line: #5a3519;
       --accent: #d9493a; --accent-hover: #e8604f; --on-accent: #ffffff;
       --soft: #3a2b1f; --flash: #6b5310; --bar: #e66767;
-      --board: #3a2a1c; --board-line: #c99a63; --warn-bg: #5a2620; --good-bg: #1f4029;
+      --board: #3a2a1c; --board-line: #c99a63; --start: #d08a45; --warn-bg: #5a2620; --good-bg: #1f4029;
       --water: #2b6ea3; --gold: #a87b1c; --c-nak: #9085e9;
       --c-do: #3987e5; --c-gae: #d95926; --c-geol: #199e70;
       --c-yut: #c98500; --c-mo: #d55181; --c-back: #008300;
@@ -58,7 +59,7 @@
     --wood-light: #e8cc95; --wood-dark: #9a5e29; --wood-line: #5a3519;
     --accent: #d9493a; --accent-hover: #e8604f; --on-accent: #ffffff;
     --soft: #3a2b1f; --flash: #6b5310; --bar: #e66767;
-    --board: #3a2a1c; --board-line: #c99a63; --warn-bg: #5a2620; --good-bg: #1f4029;
+    --board: #3a2a1c; --board-line: #c99a63; --start: #d08a45; --warn-bg: #5a2620; --good-bg: #1f4029;
     --water: #2b6ea3; --gold: #a87b1c; --c-nak: #9085e9;
     --c-do: #3987e5; --c-gae: #d95926; --c-geol: #199e70;
     --c-yut: #c98500; --c-mo: #d55181; --c-back: #008300;
@@ -332,6 +333,7 @@
   .yutpan .ln { stroke: var(--board-line); stroke-width: 4; stroke-linecap: round; fill: none; }
   .yutpan .spot { fill: var(--panel); stroke: var(--board-line); stroke-width: 3; }
   .yutpan .spot.big { fill: var(--wood-light); }
+  .yutpan .spot.start { fill: var(--start); stroke: var(--board-line); }
   .yutpan .spot.pond { fill: var(--water); }
   .yutpan .spot.x2 { fill: var(--gold); }
   .yutpan .spot-mark { fill: var(--fg); font-size: 16px; font-weight: bold; font-family: var(--font-body); text-anchor: middle; dominant-baseline: central; }
@@ -1287,6 +1289,15 @@
     <p class="about-lead">나무 막대기 <b>딱 4개</b>로 할머니부터 손주까지<br>온 가족을 들썩이게 만드는 놀이,<br>바로 우리 전통 놀이 <b>윷놀이</b>예요! 🎉</p>
 
     <div class="about-sec">
+      <div class="about-art" aria-hidden="true">💌</div>
+      <div>
+        <h4>‘친가회’는 무슨 뜻일까요?</h4>
+        <p><b>친</b>구 + <b>가</b>족 + 모임(<b>회</b>) = <b>친가회</b>!</p>
+        <p>친구 모임에서도, 가족 모임에서도 다 같이 모여 <b>즐겁게 윷놀이 한 판</b> 하자는 뜻을 담아 지은 이름이에요. 반가운 얼굴들이 모이는 곳이면 어디든 친가회 윷놀이판이 열려요! 🥳</p>
+      </div>
+    </div>
+
+    <div class="about-sec">
       <div class="about-art" aria-hidden="true">📜</div>
       <div>
         <h4>언제부터 했을까요?</h4>
@@ -1652,6 +1663,7 @@
     E1: [380, 380], E2: [460, 460]
   });
   const BIG = ["O0", "O5", "O10", "O15", "C"];
+  const SQUARE = ["O0", "O5", "O10", "O15"];   // 네모 칸: 출발 · 모 · 뒷모 · 찌모
   const LABELS = { O0: ["출발", 0, 52], O5: ["모", 0, -42], O10: ["뒷모", 0, -42], O15: ["찌모", 0, 52], C: ["방", 46, 6] };
 
   // 한 칸 앞으로: first = 이번 이동의 첫 걸음인지 (모서리·방에 멈춰 있었으면 지름길)
@@ -2210,10 +2222,17 @@
     line("O5", "O15"); line("O10", "O0");
     Object.entries(NODES).forEach(function ([id, [x, y]]) {
       const special = PONDANG.includes(id) ? "pond" : id === DOUBLE ? "x2" : "";
-      const c = document.createElementNS(SVGNS, "circle");
-      c.setAttribute("cx", x); c.setAttribute("cy", y);
-      c.setAttribute("r", BIG.includes(id) ? 30 : special ? 27 : 20);
-      c.setAttribute("class", "spot" + (BIG.includes(id) ? " big" : "") + (special ? " " + special : ""));
+      // 출발·모·뒷모·찌모는 네모, 나머지는 동그라미 (출발은 진한 색)
+      const square = SQUARE.includes(id);
+      const c = document.createElementNS(SVGNS, square ? "rect" : "circle");
+      if (square) {
+        c.setAttribute("x", x - 32); c.setAttribute("y", y - 32);
+        c.setAttribute("width", 64); c.setAttribute("height", 64); c.setAttribute("rx", 8);
+      } else {
+        c.setAttribute("cx", x); c.setAttribute("cy", y);
+        c.setAttribute("r", BIG.includes(id) ? 30 : special ? 27 : 20);
+      }
+      c.setAttribute("class", "spot" + (BIG.includes(id) ? " big" : "") + (id === "O0" ? " start" : "") + (special ? " " + special : ""));
       svg.appendChild(c);
       if (special) {
         const t = document.createElementNS(SVGNS, "text");
@@ -4756,7 +4775,9 @@
     add("path", { d: "M10 10H90V90H10ZM10 10L90 90M90 10L10 90", fill: "none", stroke: "#8ea2d8", "stroke-width": 1.2 });
     aboutBoardPoints().forEach(function (p) {
       const pole = p[0] === 50 && p[1] === 50;
-      add("circle", { cx: p[0], cy: p[1], r: pole ? 5.5 : 3, fill: pole ? "#ffd23f" : "#f4f1ff" });
+      const corner = (p[0] === 10 || p[0] === 90) && (p[1] === 10 || p[1] === 90);   // 출발·모·뒷모·찌모는 네모
+      if (corner) add("rect", { x: p[0] - 5, y: p[1] - 5, width: 10, height: 10, rx: 1.5, fill: p[0] === 90 && p[1] === 90 ? "#ffb347" : "#f4f1ff" });
+      else add("circle", { cx: p[0], cy: p[1], r: pole ? 5.5 : 3, fill: pole ? "#ffd23f" : "#f4f1ff" });
     });
     const box = $("aboutOdds");
     ABOUT_ODDS.forEach(function (o) {
