@@ -644,6 +644,37 @@
   .p-tally { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; min-height: 28px; }
   .p-tally span { font-size: 14px; padding: 2px 10px; border-radius: 999px; background: var(--soft); font-variant-numeric: tabular-nums; }
 
+  /* 📜 윷놀이란? */
+  .about-sheet { width: min(640px, 100%); text-align: left; align-items: stretch; gap: 12px; }
+  .about-lead { font-size: 17px; line-height: 1.65; margin: 0; text-align: center; text-wrap: balance; }
+  .about-hero { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 auto; }
+  .about-sec {
+    display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 14px; align-items: start;
+    padding: 14px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line);
+  }
+  .about-sec h4 { margin: 0 0 6px; font-family: var(--font-display); font-weight: 400; font-size: 21px; text-wrap: balance; }
+  .about-sec p { margin: 0 0 6px; line-height: 1.65; }
+  .about-sec ul { margin: 0; padding-left: 1.2em; line-height: 1.65; }
+  .about-sec li { margin-bottom: 4px; }
+  .about-sec b { color: var(--accent); }
+  .about-art { font-size: 60px; line-height: 1; text-align: center; }
+  .about-art svg { width: 96px; height: 96px; display: block; }
+  .about-src { font-size: 13px; color: var(--muted); }
+  .about-animals { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 6px; }
+  .about-animals span {
+    display: inline-flex; flex-direction: column; align-items: center; min-width: 54px;
+    padding: 6px 8px; border-radius: 12px; background: var(--soft); font-size: 14px;
+  }
+  .about-animals span i { font-style: normal; font-size: 30px; }
+  .about-odds { display: grid; grid-template-columns: 3em minmax(0, 1fr) 4.2em; gap: 6px 8px; align-items: center; margin: 8px 0; font-variant-numeric: tabular-nums; }
+  .about-odds .bar { height: 16px; border-radius: 0 6px 6px 0; }
+  .about-odds .pct { text-align: right; font-size: 14px; color: var(--muted); }
+  .about-end { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  @media (max-width: 520px) {
+    .about-sec { grid-template-columns: minmax(0, 1fr); }
+    .about-art { justify-self: center; }
+  }
+
   /* 사용법 따라 보기 */
   .tour { position: fixed; inset: 0; z-index: 40; }
   .tour-hole {
@@ -860,6 +891,7 @@
   <nav class="quick" aria-label="빠른 메뉴">
     <button class="quick-btn" id="practiceBtn">🥢 연습 던지기</button>
     <button class="quick-btn" id="tourBtn">❓ 사용법 따라 보기</button>
+    <button class="quick-btn" id="aboutBtn">📜 윷놀이란?</button>
     <button class="quick-btn" id="hostKeyBtn" hidden>🔑 운영자</button>
   </nav>
   <!-- 운영자 비밀번호 (로그인 없는 GitHub판에서만 보여요) -->
@@ -1013,6 +1045,146 @@
   </section>
 </main>
 <div id="tip" hidden></div>
+
+<!-- 📜 윷놀이란? (소개 글) -->
+<div class="sheet-back" id="about" hidden>
+  <section class="sheet about-sheet" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+    <div class="sheet-head">
+      <h3 id="aboutTitle">📜 윷놀이란?</h3>
+      <button class="chat-close" id="aboutClose" aria-label="소개 닫기">×</button>
+    </div>
+    <!-- 그림: 멍석 위의 윷가락 넷 (배 2 · 등 2 = 개!) -->
+    <svg class="about-hero" viewBox="0 0 360 150" role="img" aria-label="멍석 위에 놓인 윷가락 네 개">
+      <rect x="6" y="10" width="348" height="132" rx="18" fill="var(--wood-light)" stroke="var(--wood-line)" stroke-width="3"/>
+      <rect x="16" y="20" width="328" height="112" rx="12" fill="none" stroke="var(--wood-line)" stroke-width="1.5" stroke-dasharray="6 5"/>
+      <g stroke="var(--wood-line)" stroke-width="3">
+        <rect x="58" y="34" width="40" height="88" rx="18" fill="#fff6e0" transform="rotate(-8 78 78)"/>
+        <rect x="124" y="30" width="40" height="88" rx="18" fill="var(--wood-dark)" transform="rotate(5 144 74)"/>
+        <rect x="192" y="34" width="40" height="88" rx="18" fill="#fff6e0" transform="rotate(-3 212 78)"/>
+        <rect x="258" y="30" width="40" height="88" rx="18" fill="var(--wood-dark)" transform="rotate(9 278 74)"/>
+      </g>
+      <g stroke="#fff6e0" stroke-width="3" stroke-linecap="round">
+        <path d="M134 52l20 12M154 52l-20 12M134 84l20 12M154 84l-20 12" transform="rotate(5 144 74)"/>
+        <path d="M268 52l20 12M288 52l-20 12M268 84l20 12M288 84l-20 12" transform="rotate(9 278 74)"/>
+      </g>
+    </svg>
+    <p class="about-lead">나무 막대기 <b>딱 4개</b>로 할머니부터 손주까지<br>온 가족을 들썩이게 만드는 놀이,<br>바로 우리 전통 놀이 <b>윷놀이</b>예요! 🎉</p>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">📜</div>
+      <div>
+        <h4>언제부터 했을까요?</h4>
+        <p>아주아주 먼 옛날부터 했어요! 정확히 언제 시작했는지는 아무도 몰라서, 재미있는 이야기가 많이 전해져요.</p>
+        <ul>
+          <li><b>옛 나라 부여 이야기</b>: 부여에는 동물 이름이 붙은 높은 벼슬 <b>마가(말)·우가(소)·저가(돼지)·구가(개)</b>가 있었대요. 이 동물들이 윷놀이의 <b>도·개·걸·윷·모</b>가 되었다는 이야기가 있어요.</li>
+          <li><b>백제의 놀이</b>: 옛 중국 역사책에는 백제 사람들이 <b>‘저포’</b>라는 놀이를 즐겼다고 적혀 있어요. 윷놀이와 비슷한 놀이로 보는 학자도 있어요.</li>
+          <li><b>설날의 놀이</b>: 설날부터 정월 대보름까지 온 마을이 모여 윷을 던졌어요. 새해 운세를 보는 <b>윷점</b>도 쳤대요.</li>
+        </ul>
+        <p class="about-src">※ 유래는 여러 이야기(설)가 전해지는 것이고, 딱 하나로 정해진 정답은 없어요.</p>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">🐴</div>
+      <div>
+        <h4>도개걸윷모는 동물 친구들!</h4>
+        <p>느린 동물부터 빠른 동물 순서라서 한 번에 가는 칸 수도 점점 많아져요.</p>
+        <div class="about-animals" aria-label="도는 돼지 1칸, 개는 개 2칸, 걸은 양 3칸, 윷은 소 4칸, 모는 말 5칸">
+          <span><i>🐷</i>도 · 1칸</span>
+          <span><i>🐶</i>개 · 2칸</span>
+          <span><i>🐑</i>걸 · 3칸</span>
+          <span><i>🐮</i>윷 · 4칸</span>
+          <span><i>🐴</i>모 · 5칸</span>
+        </div>
+        <p>그래서 우리 게임의 팀도 <b>돼지·강아지·양·소</b> 팀이에요. 🐷🐶🐑🐮 말(🐴)은 제일 빠르니까 모두가 바라는 <b>모</b>!</p>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art">
+        <svg id="aboutBoard" viewBox="0 0 100 100" role="img" aria-label="밤하늘 별자리처럼 생긴 윷 말판, 점 29개"></svg>
+      </div>
+      <div>
+        <h4>말판은 밤하늘이에요 🌌</h4>
+        <p>조선 시대 선비 <b>김문표</b>는 말판을 하늘로 보았어요. 바깥은 둥근 하늘, 가운데 <b>방</b>은 <b>북극성</b>, 나머지 점은 북극성 둘레의 <b>별자리 28개</b>라고 풀이했대요.</p>
+        <p>세어 볼까요? 우리 게임 말판의 점도 <b>모두 29개</b>(가운데 1 + 별 28)예요. ⭐ 말을 옮기면서 별 사이를 여행하는 거죠!</p>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">🤝</div>
+      <div>
+        <h4>마음을 모으는 화합의 게임</h4>
+        <ul>
+          <li><b>편을 갈라 함께</b> 해요. 내가 못 던져도 우리 편이 던져 주니까, 이기든 지든 다 같이 웃어요.</li>
+          <li><b>나이도 실력도 상관없어요.</b> 다섯 살 손주가 던진 모 한 번에 할아버지 팀이 뒤집어지기도 해요!</li>
+          <li>던질 때마다 <b>“윷이야! 모야!”</b> 소리치다 보면 처음 만난 사촌과도 금세 친해져요.</li>
+          <li>그래서 옛날부터 설날·명절, 마을 잔치처럼 <b>사람들이 모이는 날</b>이면 꼭 했어요.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">🤣</div>
+      <div>
+        <h4>웃다가 허리 아픈 게임</h4>
+        <p>윷놀이를 하고 나면 배꼽이 남아나지 않아요. 이런 순간들 때문이에요.</p>
+        <ul>
+          <li>🥢 힘껏 던졌는데 윷가락이 멍석 밖으로 데구루루… <b>낙!</b> 😱</li>
+          <li>🔙 골인 바로 앞에서 나온 <b>빽도</b>. 한 칸 뒤로 슬금슬금…</li>
+          <li>💥 다 왔는데 상대 말에게 <b>잡혀서</b> 처음부터 다시! (복수는 다음 차례에 😤)</li>
+          <li>🐷🐷🐷 말 네 개를 <b>업고</b> 가다가 한 방에 몽땅 잡히는 대참사</li>
+          <li>💦 우리 집 규칙 <b>퐁당</b> 칸에 빠져서 집으로 돌아가기</li>
+          <li>👵 “할머니가 다 보고 계십니다!” 반칙하면 바로 들켜요</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">🧠</div>
+      <div>
+        <h4>어린이 두뇌가 쑥쑥 자라요</h4>
+        <p>윷 던지기는 운이지만, <b>말을 어디로 옮길지는 머리 싸움</b>이에요. 놀면서 이런 힘이 길러져요.</p>
+        <ul>
+          <li><b>셈하기</b>: “걸이니까 3칸, 여기서 세면 모 자리!” 저절로 수를 세고 더해요.</li>
+          <li><b>앞을 내다보기</b>: 모 자리에 서면 지름길로 갈 수 있어요. 몇 수 앞을 미리 계획해요.</li>
+          <li><b>골라서 결정하기</b>: 상대 말을 잡을까, 내 말을 업을까, 새 말을 낼까? 장단점을 따져 골라요.</li>
+          <li><b>확률 감각</b>: “개가 잘 나오니까 상대 말 두 칸 뒤는 위험해!” 위험을 재 보는 눈이 생겨요.</li>
+          <li><b>마음 근육</b>: 차례 기다리기, 잡혀도 다시 웃기, 우리 편 응원하기. 함께 노는 법을 배워요.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">🎲</div>
+      <div>
+        <h4>뭐가 제일 잘 나올까요?</h4>
+        <p>윷가락 하나가 앞(배)이나 뒤(등)로 반반씩 나온다고 하면 이렇게 돼요. (우리 게임도 이렇게 계산해요)</p>
+        <div class="about-odds" id="aboutOdds"></div>
+        <p><b>개</b>가 제일 잘 나와요! 그래서 <b>상대 말 두 칸 뒤</b>에 서 있으면 아주 위험해요. 윷과 모는 16번에 1번꼴이라, 나오면 축포를 쏠 만하죠! 🎆</p>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">👨‍👩‍👧‍👦</div>
+      <div>
+        <h4>언제 어디서나, 누구와도</h4>
+        <ul>
+          <li>준비물은 <b>윷가락 4개와 말판</b>뿐! 거실, 마당, 캠핑장, 리조트 어디서든 할 수 있어요.</li>
+          <li>2명이서도, 20명이서도 OK. <b>친구·가족·이웃</b> 누구와도 금방 함께해요.</li>
+          <li>규칙이 쉬워서 <b>처음 하는 사람도 1분이면</b> 배워요. 그런데 할수록 더 깊어져요.</li>
+          <li>휴대폰 화면만 보던 우리가 <b>얼굴 보고 소리 지르며</b> 노는 시간이 돼요.</li>
+        </ul>
+        <p>자, 이제 우리 친가회 차례예요. 다 같이 외쳐 볼까요? <b>“윷이야~!! 모야~!!”</b> 🙌</p>
+      </div>
+    </div>
+
+    <div class="about-end">
+      <button class="again-btn" id="aboutPractice">🥢 연습 던지러 가기</button>
+      <button class="quick-btn" id="aboutDone">닫기</button>
+    </div>
+  </section>
+</div>
 
 <!-- 연습 던지기 (기록에 안 남아요) -->
 <div class="sheet-back" id="practice" hidden>
@@ -3546,6 +3718,63 @@
   });
 
   // =====================================================================
+  // ---------- 📜 윷놀이란? (소개 글 + 그림) ----------
+  // =====================================================================
+  // 윷가락 하나가 배/등 반반일 때, 16가지 경우 중 몇 번 나오나 (빽도는 표시된 윷가락 하나만 배)
+  const ABOUT_ODDS = [["도", 3, "--c-do"], ["개", 6, "--c-gae"], ["걸", 4, "--c-geol"], ["윷", 1, "--c-yut"], ["모", 1, "--c-mo"], ["빽도", 1, "--c-back"]];
+  // 말판 점 29개: 바깥 20 + 대각선 8 + 가운데(북극성) 1
+  function aboutBoardPoints() {
+    const pts = [], lo = 10, hi = 90, step = (hi - lo) / 5;
+    for (let i = 0; i < 5; i++) {
+      pts.push([hi, hi - i * step], [hi - i * step, lo], [lo, lo + i * step], [lo + i * step, hi]);
+    }
+    [[hi, hi], [hi, lo], [lo, lo], [lo, hi]].forEach(function (c) {
+      pts.push([c[0] + (50 - c[0]) / 3, c[1] + (50 - c[1]) / 3], [c[0] + (50 - c[0]) * 2 / 3, c[1] + (50 - c[1]) * 2 / 3]);
+    });
+    pts.push([50, 50]);
+    return pts;
+  }
+  function drawAbout() {
+    const svg = $("aboutBoard");
+    if (svg.childNodes.length) return;
+    const NS = "http://www.w3.org/2000/svg";
+    const add = (tag, attrs) => { const el = document.createElementNS(NS, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); svg.appendChild(el); return el; };
+    add("rect", { x: 2, y: 2, width: 96, height: 96, rx: 14, fill: "#1d2a52" });
+    add("path", { d: "M10 10H90V90H10ZM10 10L90 90M90 10L10 90", fill: "none", stroke: "#8ea2d8", "stroke-width": 1.2 });
+    aboutBoardPoints().forEach(function (p) {
+      const pole = p[0] === 50 && p[1] === 50;
+      add("circle", { cx: p[0], cy: p[1], r: pole ? 5.5 : 3, fill: pole ? "#ffd23f" : "#f4f1ff" });
+    });
+    const box = $("aboutOdds");
+    ABOUT_ODDS.forEach(function (o) {
+      const name = document.createElement("span"); name.textContent = o[0];
+      const track = document.createElement("span");
+      const bar = document.createElement("span"); bar.className = "bar";
+      bar.style.display = "block"; bar.style.width = (o[1] / 6 * 100) + "%"; bar.style.background = `var(${o[2]})`;
+      track.appendChild(bar);
+      const pct = document.createElement("span"); pct.className = "pct";
+      pct.textContent = `${o[1]}/16`;
+      box.append(name, track, pct);
+    });
+  }
+  function openAbout() {
+    drawAbout();
+    $("about").hidden = false;
+    $("about").querySelector(".sheet").scrollTop = 0;
+    $("aboutClose").focus();
+  }
+  function closeAbout() {
+    if ($("about").hidden) return;
+    $("about").hidden = true;
+    $("aboutBtn").focus();
+  }
+  $("aboutBtn").addEventListener("click", openAbout);
+  $("aboutClose").addEventListener("click", closeAbout);
+  $("aboutDone").addEventListener("click", closeAbout);
+  $("aboutPractice").addEventListener("click", function () { closeAbout(); openPractice(); });
+  $("about").addEventListener("click", function (e) { if (e.target === this) closeAbout(); });
+
+  // =====================================================================
   // ---------- ❓ 사용법 따라 보기 (가림막 + 화살표 + 말풍선 + 시범) ----------
   // =====================================================================
   const TOUR = [
@@ -3725,6 +3954,7 @@
       else if (e.key === "ArrowRight") nextTour();
       else if (e.key === "ArrowLeft") prevTour();
     } else if (!$("practice").hidden && e.key === "Escape") closePractice();
+    else if (!$("about").hidden && e.key === "Escape") closeAbout();
   });
   // 처음 온 사람에게만 '사용법 보기' 안내 줄을 보여 줘요
   try { $("welcomeBar").hidden = !!localStorage.getItem("yut-tour-seen"); } catch (e) { $("welcomeBar").hidden = false; }
