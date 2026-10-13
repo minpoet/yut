@@ -337,7 +337,12 @@
   .yutpan .spot.pond { fill: var(--water); }
   .yutpan .spot.x2 { fill: var(--gold); }
   .yutpan .spot-mark { fill: var(--fg); font-size: 16px; font-weight: bold; font-family: var(--font-body); text-anchor: middle; dominant-baseline: central; }
-  .yutpan .spot-label { fill: var(--muted); font-size: 17px; font-family: var(--font-body); text-anchor: middle; }
+  .yutpan .spot-label { fill: var(--fg); font-size: 21px; font-weight: bold; font-family: var(--font-body); text-anchor: middle; }
+  .yutpan .spot-name { fill: var(--muted); font-size: 14px; font-family: var(--font-body); text-anchor: middle; }
+  .yutpan .field-name { fill: var(--board-line); opacity: 0.45; font-size: 22px; font-family: var(--font-display); text-anchor: middle; }
+  .yutpan .spot-label.in { fill: var(--wood-line); dominant-baseline: central; }   /* 밝은 나무색 네모 위라 두 테마 모두 진한 글씨 */
+  .yutpan .start-mark { fill: var(--on-accent); font-size: 17px; font-weight: bold; font-family: var(--font-body); text-anchor: middle; dominant-baseline: central; }
+  .yutpan .start-sub { fill: var(--on-accent); opacity: 0.85; font-size: 12px; font-family: var(--font-body); text-anchor: middle; dominant-baseline: central; }
 
   .token {
     position: absolute;
@@ -750,6 +755,29 @@
     font-size: 14px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); opacity: 0.6;
   }
   .tv-exit:hover { opacity: 1; }
+  /* 🚪 방 */
+  .room-bar {
+    display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: center;
+    max-width: 640px; margin: 0 0 14px; padding: 8px 14px; border-radius: 14px;
+    background: var(--panel); border: 2px solid var(--wood-line); font-size: 16px;
+  }
+  .room-bar.warn { background: var(--warn-bg); border-color: var(--accent); }
+  .room-code { font-family: var(--font-display); letter-spacing: 0.12em; font-variant-numeric: tabular-nums; }
+  .room-sheet { width: min(460px, 100%); text-align: left; align-items: stretch; gap: 12px; }
+  .room-part { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+  .room-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .room-row input {
+    flex: 1; min-width: 8em; font-size: 17px; font-family: inherit; padding: 7px 10px;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg);
+  }
+  .room-recent { display: flex; flex-wrap: wrap; gap: 6px; }
+  .room-recent a {
+    display: inline-flex; gap: 6px; align-items: baseline; padding: 5px 12px; border-radius: 999px;
+    border: 1px solid var(--wood-line); color: var(--fg); text-decoration: none; background: var(--bg);
+  }
+  .room-recent a small { color: var(--muted); }
+  body.tv .room-bar { display: none !important; }
+
   /* 🤖 AI 추천 */
   .ai-row { display: flex; justify-content: center; }
   .ai-btn {
@@ -999,7 +1027,11 @@
     .rank-row { grid-template-columns: 2em 6.5em 1fr; }
     .dist-row { grid-template-columns: 6.5em 1fr 3em; }
     .token .count { font-size: 11px; line-height: 16px; padding: 0 4px; }
-    .yutpan .spot-label { font-size: 22px; }
+    .yutpan .spot-label { font-size: 25px; }
+    .yutpan .spot-name { font-size: 18px; }
+    .yutpan .field-name { font-size: 26px; }
+    .yutpan .start-mark { font-size: 19px; }
+    .yutpan .start-sub { font-size: 14px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .pop, .tremble, .flash, .token.landed, .msg.warn, .chat-cheer.new, .tour-arrow, .tour-finger,
@@ -1029,7 +1061,14 @@
     <button class="quick-btn" id="qrBtn">📱 QR 초대</button>
     <button class="quick-btn" id="tvBtn">📺 TV 화면</button>
     <button class="quick-btn" id="setupToggle" aria-expanded="false" hidden>⚙️ 설정 · 내 정보</button>
+    <button class="quick-btn" id="roomBtn" hidden>🚪 방 만들기 · 들어가기</button>
   </nav>
+  <!-- 🚪 지금 있는 방 -->
+  <div class="room-bar" id="roomBar" hidden>
+    <span id="roomText"></span>
+    <button class="small-btn" id="roomCopy">🔗 방 링크 복사</button>
+    <button class="link-btn" id="roomHome">기본 방으로</button>
+  </div>
   <!-- 카톡 같은 앱 안에서 열렸을 때 -->
   <div class="inapp" id="inappBar" hidden>
     <span id="inappText"></span>
@@ -1143,7 +1182,7 @@
       <summary>말 옮기는 방법 · 규칙 보기</summary>
       <ul>
         <li>윷을 던진 다음, 자기 팀 말을 <b>끌어서</b> 놓거나, 말을 <b>한 번 누르고</b> 갈 자리를 누르세요.</li>
-        <li>처음 나가는 말은 아래 팀 칸(대기 중)에서 끌어오면 돼요. 출발은 오른쪽 아래 <b>출발</b> 자리예요.</li>
+        <li>처음 나가는 말은 아래 팀 칸(대기 중)에서 끌어오면 돼요. 출발은 오른쪽 아래 <b>참먹이(출발)</b> 자리예요. 칸마다 전통 윷판 이름(도·개·걸·윷·모, 뒷도…, 방, 안찌…)이 적혀 있어요.</li>
         <li>윷·모가 나오면 한 번 더 던져요. 나온 것들은 <b>원하는 순서대로</b> 원하는 말에 쓸 수 있고, 다시 던지기 <b>전에 미리 옮겨 둘 수도</b> 있어요.</li>
         <li><b>낙(落)</b>: 윷가락이 멍석 선 밖으로 떨어지면 무효! 아직 <b>옮기지 않고 모아 둔 윷·모까지 전부 무효</b>가 되고 차례가 끝나요.</li>
         <li>모서리(<b>모</b>, <b>뒷모</b>)나 가운데(<b>방</b>)에 <b>딱 멈추면</b> 다음에 지름길로 가요.</li>
@@ -1253,6 +1292,33 @@
     <div class="qr-box" id="qrBox">QR 만드는 중…</div>
     <div class="qr-url" id="qrUrl"></div>
     <button class="small-btn" id="qrCopy">주소 복사</button>
+  </section>
+</div>
+
+<!-- 🚪 방 만들기 · 들어가기 -->
+<div class="sheet-back" id="roomSheet" hidden>
+  <section class="sheet room-sheet" role="dialog" aria-modal="true" aria-labelledby="roomTitle">
+    <div class="sheet-head">
+      <h3 id="roomTitle">🚪 방 만들기 · 들어가기</h3>
+      <button class="chat-close" id="roomClose" aria-label="방 창 닫기">×</button>
+    </div>
+    <p class="setup-note" style="font-size:15px">방마다 <b>말판 · 채팅 · 기록판이 따로</b>예요. 여러 모임이 동시에 각자 놀 수 있어요.</p>
+    <form class="room-part" id="roomMakeForm">
+      <b>✨ 새 방 만들기</b>
+      <label class="room-row">방 이름 <input id="roomName" maxlength="20" placeholder="예: 동창회, 2조" autocomplete="off"></label>
+      <button class="again-btn" id="roomMake">방 만들기</button>
+      <span class="setup-note">방을 만든 사람이 그 방의 <b>운영자</b>가 돼요. (방을 만든 이 휴대폰·브라우저에서만)</span>
+    </form>
+    <form class="room-part" id="roomJoinForm">
+      <b>🔑 코드로 들어가기</b>
+      <label class="room-row">방 코드 <input id="roomCode" maxlength="5" placeholder="예: K7QX2" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase"></label>
+      <button class="small-btn danger" id="roomJoin">들어가기</button>
+    </form>
+    <div class="room-part" id="roomRecentBox" hidden>
+      <b>🕘 최근에 간 방</b>
+      <div class="room-recent" id="roomRecent"></div>
+    </div>
+    <p class="setup-note" id="roomMsg" role="status"></p>
   </section>
 </div>
 
@@ -1491,6 +1557,11 @@
       },
       hostLogin: function (key) {
         return fb.then(function (x) { if (!x) throw { code: "unavailable" }; return x.hostLogin(key); });
+      },
+      // 🚪 방: rooms/<코드> 문서에 방 이름과 방장(만든 사람 번호)을 적어 둬요
+      yutRoom: {
+        get: function (code) { return fb.then(function (x) { return x ? x.room.get(code) : null; }); },
+        create: function (code, name) { return fb.then(function (x) { if (!x) throw { code: "unavailable" }; return x.room.create(code, name); }); }
       }
     };
   })();
@@ -1559,7 +1630,22 @@
       isHost = true;
       return true;
     };
-    window.__yutFirebaseReady({ db, user, hostLogin });
+    const room = {
+      get: async function (code) {
+        const s = await getDoc(doc(store, "rooms", code));
+        if (!s.exists()) return null;
+        const d = s.data();
+        return { host: typeof d.host === "string" ? d.host : "", name: typeof d.name === "string" ? d.name.slice(0, 20) : "" };
+      },
+      create: async function (code, name) {
+        const ref = doc(store, "rooms", code);
+        if ((await getDoc(ref)).exists()) throw { code: "exists" };
+        try { await setDoc(ref, { host: uid, name: String(name).slice(0, 20), at: Date.now() }); }
+        catch (e) { throw mapErr(e); }
+        return true;
+      }
+    };
+    window.__yutFirebaseReady({ db, user, hostLogin, room });
   } catch (e) {
     console.error("Firebase 연결 실패", e);
     window.__yutFirebaseReady(null);
@@ -1580,6 +1666,24 @@
   const ON = { db: null, user: null, me: null, isHost: false, canWrite: false, setup: null, people: {}, live: null, chats: {} };
   const TAB = "t" + newId();         // 이 화면 표시 (내가 쓴 데이터가 되돌아오면 무시)
   const online = () => !!ON.db;
+  // ---------- 🚪 방 (GitHub판): 주소에 ?room=코드 가 있으면 그 방 칸만 써요 ----------
+  // 코드가 없으면 '기본 방' (예전 그대로). 방마다 말판·채팅·기록·운영자가 따로예요.
+  const ROOM_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // 헷갈리는 I·O·0·1은 빼요
+  const ROOM_RE = /^[A-HJ-NP-Z2-9]{5}$/;
+  function parseRoom(search) {
+    const m = /[?&]room=([^&#]*)/.exec(search || "");
+    if (!m) return { asked: false, code: null };
+    let c = "";
+    try { c = decodeURIComponent(m[1]).trim().toUpperCase(); } catch (e) { }
+    return { asked: true, code: ROOM_RE.test(c) ? c : null, raw: c.slice(0, 12) };
+  }
+  const roomPath = (room, p) => room ? `rooms/${room}/${p}` : p;
+  const hasRooms = () => !!window.claude && !!window.claude.yutRoom;
+  const ROOM_ASK = (function () {
+    try { return hasRooms() ? parseRoom(location.search) : { asked: false, code: null }; } catch (e) { return { asked: false, code: null }; }
+  })();
+  const ROOM = ROOM_ASK.code;
+  const dbPath = p => roomPath(ROOM, p);
   let liveTurns = {};                // 온라인 기록: { 사람id: [[결과…], …] }
   let pendingFx = {};                // 다른 사람 화면에서도 낼 효과음·꽃가루
   // 지금 이 화면에서 던지거나 옮겨도 되는지 (온라인: 자기 차례이거나 운영자)
@@ -1669,7 +1773,19 @@
   });
   const BIG = ["O0", "O5", "O10", "O15", "C"];
   const SQUARE = ["O0", "O5", "O10", "O15"];   // 네모 칸: 출발 · 모 · 뒷모 · 찌모
-  const LABELS = { O0: ["출발", 0, 52], O5: ["모", 0, -42], O10: ["뒷모", 0, -42], O15: ["찌모", 0, 52], C: ["방", 46, 6] };
+  // 큰 이름 자리: [옆으로, 위아래로]
+  const LABELS = { C: [48, 8] };   // 방 이름은 동그라미 오른쪽 (모서리 이름은 네모 안)
+  // 전통 윷판 칸 이름 (github/말판.svg): 참먹이에서 시계 반대 방향으로
+  const SPOT_NAMES = {
+    O0: "참먹이", O1: "도", O2: "개", O3: "걸", O4: "윷",
+    O5: "모", O6: "뒷도", O7: "뒷개", O8: "뒷걸", O9: "뒷윷",
+    O10: "뒷모", O11: "찌도", O12: "찌개", O13: "찌걸", O14: "찌윷",
+    O15: "찌모", O16: "날도", O17: "날개", O18: "날걸", O19: "날윷",
+    A1: "모도", A2: "모개", B1: "뒷모도", B2: "뒷모개", C: "방",
+    D1: "속윷", D2: "속모", E1: "방수기", E2: "안찌"
+  };
+  // 밭 이름: 말이 지나가는 네 줄의 안쪽 땅
+  const FIELDS = [["앞밭", 468, 308], ["뒷밭", 300, 150], ["쨀밭", 132, 308], ["날밭", 300, 468]];
 
   // 한 칸 앞으로: first = 이번 이동의 첫 걸음인지 (모서리·방에 멈춰 있었으면 지름길)
   function nextNode(node, prev, first) {
@@ -2249,14 +2365,42 @@
         svg.appendChild(t);
       }
     });
-    Object.entries(LABELS).forEach(function ([id, [text, dx, dy]]) {
+    const text = function (x, y, cls, s) {
       const t = document.createElementNS(SVGNS, "text");
-      t.setAttribute("x", NODES[id][0] + dx);
-      t.setAttribute("y", NODES[id][1] + dy);
-      t.setAttribute("class", "spot-label");
-      t.textContent = text;
+      t.setAttribute("x", x);
+      t.setAttribute("y", y);
+      t.setAttribute("class", cls);
+      t.textContent = s;
       svg.appendChild(t);
+    };
+    // 밭 이름 (흐리게): 앞밭 · 뒷밭 · 쨀밭 · 날밭
+    FIELDS.forEach(([s, x, y]) => text(x, y, "field-name", s));
+    // 칸 이름: 참먹이·모·뒷모·찌모·방은 크게, 나머지는 작게
+    Object.keys(NODES).forEach(function (id) {
+      const [x, y, big, anchor] = namePos(id);
+      if (id === "O0") {   // 참먹이: 진한 네모 안에 흰 글씨 + 작은 '출발'
+        text(x, y - 8, "start-mark", SPOT_NAMES.O0);
+        text(x, y + 16, "start-sub", "출발");
+        return;
+      }
+      const cls = big ? (SQUARE.includes(id) ? "spot-label in" : "spot-label") : "spot-name";
+      text(x, y, cls, SPOT_NAMES[id]);
+      if (anchor) svg.lastChild.style.textAnchor = anchor;
     });
+  }
+  // 칸 이름 자리 [x, y, 크게?, 글 맞춤]: 모서리는 네모 안, 방은 오른쪽,
+  // 바깥 줄은 판 바깥쪽(큰 ×2 칸만 안쪽), 지름길 칸은 동그라미 위
+  function namePos(id) {
+    const [x, y] = NODES[id];
+    if (SQUARE.includes(id)) return [x, y, true];
+    if (LABELS[id]) return [x + LABELS[id][0], y + LABELS[id][1], true];
+    const r = PONDANG.includes(id) || id === DOUBLE ? 27 : 20;
+    if (id[0] !== "O") return [x, y - r - 7, false];
+    const i = Number(id.slice(1));
+    if (i < 5) return [581, y + 6, false];                // 오른쪽 줄 (참먹이 → 모)
+    if (i < 10) return [x, 31, false];                    // 위쪽 줄 (모 → 뒷모)
+    if (i < 15) return id === DOUBLE ? [x + r + 7, y + 6, false, "start"] : [19, y + 6, false];   // 왼쪽 줄 (×2 칸만 판 안쪽)
+    return [x, 589, false];                               // 아래쪽 줄 (찌모 → 참먹이)
   }
 
   let selected = null;   // { team, node }
@@ -3583,7 +3727,7 @@
     btn.dataset.busy = "1";
     btn.disabled = true;
     try {
-      await ON.db.doc("people/" + ON.me).set(data);
+      await ON.db.doc(dbPath("people/" + ON.me)).set(data);
       ON.people[ON.me] = cleanPerson(data);
       meDraft.name = data.name;
     } catch (e) { writeFailed(e); }
@@ -3939,19 +4083,28 @@
       const can = await user.can("data.write");
       ON.canWrite = !!ON.me && can !== false;
     }
+    // 🚪 방: 방을 만든 사람이 그 방의 운영자예요
+    if (ROOM) {
+      let info = null;
+      try { info = await window.claude.yutRoom.get(ROOM); } catch (e) { }
+      ON.room = info;
+      ON.roomMissing = !info;
+      if (info && info.host === ON.me) ON.isHost = true;
+    }
     ON.db = db;
     ON.setup = normalizeSetup(null);
     state = { count: 0, players: [], current: null, open: false, date: "", place: "", game: freshGame(2), nakRate: DEFAULT_NAK, teamNames: ["", "", "", ""] };
     liveTurns = {};
     selected = null;
-    liveWriter = makeWriter("live/game");
-    setupWriter = makeWriter("setup/main");
-    if (ON.me) chatWriter = makeWriter("chat/" + ON.me);
+    liveWriter = makeWriter(dbPath("live/game"));
+    setupWriter = makeWriter(dbPath("setup/main"));
+    if (ON.me) chatWriter = makeWriter(dbPath("chat/" + ON.me));
     say("info", "온라인 판에 연결하는 중… 🌐");
     renderAll();
+    renderRoomBar();
     if (typeof navigator !== "undefined" && navigator.onLine === false) renderNet(false);
 
-    db.doc("setup/main").onSnapshot(function (snap) {
+    db.doc(dbPath("setup/main")).onSnapshot(function (snap) {
       const d = snap.exists ? snap.data() : null;
       if (d && d.by === TAB && ON.setupSeen) return;   // 내가 쓴 것
       ON.setupSeen = true;
@@ -3964,7 +4117,7 @@
       }
       refreshShared();
     }, onDbError);
-    db.collection("people").onSnapshot(function (snap) {
+    db.collection(dbPath("people")).onSnapshot(function (snap) {
       const people = {};
       snap.docs.forEach(d => { people[d.id] = cleanPerson(d.data()); });
       const before = ON.people[ON.me], after = ON.me ? people[ON.me] : null;
@@ -3976,11 +4129,11 @@
       }
       refreshShared();
     }, onDbError);
-    db.doc("live/game").onSnapshot(function (snap) {
+    db.doc(dbPath("live/game")).onSnapshot(function (snap) {
       onLive(snap.exists ? snap.data() : null);
       if ($("msgBox").textContent.startsWith("온라인 판에 연결")) say("info", "이름을 누르고 윷을 던진 다음, 자기 팀 말을 끌어서 옮기세요!");
     }, onDbError);
-    db.collection("chat").onSnapshot(onChatSnap, onDbError);
+    db.collection(dbPath("chat")).onSnapshot(onChatSnap, onDbError);
   })();
   // 다른 사람이 던질 때도 소리가 나도록, 화면을 한 번 누르면 소리를 켜 둬요
   document.addEventListener("pointerdown", function () { ensureAudio(); }, { once: true });
@@ -4170,7 +4323,7 @@
   // 다른 사람에게 보낼 주소 (GitHub판은 지금 주소, claude.ai판은 공유 링크)
   function shareUrl() {
     if (typeof location === "undefined" || !/^https?:$/.test(location.protocol)) return null;
-    if (hostLoginFn() || /github\.io$/.test(location.hostname)) return location.origin + location.pathname;
+    if (hostLoginFn() || /github\.io$/.test(location.hostname)) return location.origin + location.pathname + (ROOM ? "?room=" + ROOM : "");
     return ARTIFACT_URL;
   }
   function copyText(text, btn) {
@@ -4221,6 +4374,117 @@
   $("qrClose").addEventListener("click", function () { $("qr").hidden = true; $("qrBtn").focus(); });
   $("qr").addEventListener("click", function (e) { if (e.target === this) this.hidden = true; });
   $("qrCopy").addEventListener("click", function () { copyText(shareUrl(), this); });
+
+  // =====================================================================
+  // ---------- 🚪 방 만들기 · 들어가기 (GitHub판) ----------
+  // =====================================================================
+  function makeRoomCode(rnd) {
+    rnd = rnd || Math.random;
+    let s = "";
+    for (let i = 0; i < 5; i++) s += ROOM_CHARS[Math.floor(rnd() * ROOM_CHARS.length)];
+    return s;
+  }
+  const roomUrl = code => location.origin + location.pathname + (code ? "?room=" + code : "");
+  // 최근에 간 방 (이 기기에만 기억)
+  function recentRooms() {
+    try {
+      const a = JSON.parse(localStorage.getItem("yut-rooms") || "[]");
+      return Array.isArray(a) ? a.filter(r => r && ROOM_RE.test(r.code) && typeof r.name === "string").slice(0, 8) : [];
+    } catch (e) { return []; }
+  }
+  function rememberRoom(code, name) {
+    const list = [{ code, name: String(name || "").slice(0, 20) }].concat(recentRooms().filter(r => r.code !== code)).slice(0, 8);
+    try { localStorage.setItem("yut-rooms", JSON.stringify(list)); } catch (e) { }
+  }
+  function renderRoomBar() {
+    $("roomBtn").hidden = !hasRooms();
+    const bar = $("roomBar");
+    if (!hasRooms() || !ROOM_ASK.asked) { bar.hidden = true; return; }
+    bar.hidden = false;
+    const t = $("roomText");
+    t.innerHTML = "";
+    if (!ROOM || (online() && ON.roomMissing)) {
+      bar.className = "room-bar warn";
+      t.textContent = `⚠️ '${ROOM || ROOM_ASK.raw || ""}' 방을 찾을 수 없어요. 방 코드를 다시 확인해 주세요.`;
+      $("roomCopy").hidden = true;
+      return;
+    }
+    bar.className = "room-bar";
+    $("roomCopy").hidden = false;
+    const name = ON.room && ON.room.name ? ON.room.name : "";
+    const b = document.createElement("b");
+    b.textContent = name || "이름 없는";
+    const code = document.createElement("span");
+    code.className = "room-code";
+    code.textContent = ROOM;
+    t.append("🚪 ", b, " 방 · 코드 ", code);
+    if (ON.isHost && ON.room && ON.room.host === ON.me) t.append(" ", hostBadge());
+    if (name) rememberRoom(ROOM, name);
+    document.title = (name ? name + " · " : "") + "친가회 윷놀이";
+    if (titleBase !== null) titleBase = document.title;
+  }
+  function openRooms() {
+    $("roomSheet").hidden = false;
+    $("roomMsg").textContent = "";
+    const list = recentRooms().filter(r => r.code !== ROOM);
+    const box = $("roomRecent");
+    box.innerHTML = "";
+    list.forEach(function (r) {
+      const a = document.createElement("a");
+      a.href = roomUrl(r.code);
+      const n = document.createElement("span"); n.textContent = r.name || "방";
+      const c = document.createElement("small"); c.textContent = r.code;
+      a.append(n, c);
+      box.appendChild(a);
+    });
+    if (ROOM) {
+      const a = document.createElement("a");
+      a.href = roomUrl(null);
+      a.textContent = "🏠 기본 방";
+      box.appendChild(a);
+    }
+    $("roomRecentBox").hidden = !box.children.length;
+    $("roomName").focus();
+  }
+  $("roomBtn").addEventListener("click", openRooms);
+  $("roomClose").addEventListener("click", function () { $("roomSheet").hidden = true; $("roomBtn").focus(); });
+  $("roomSheet").addEventListener("click", function (e) { if (e.target === this) this.hidden = true; });
+  $("roomMakeForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const name = $("roomName").value.trim().slice(0, 20), msg = $("roomMsg"), btn = $("roomMake");
+    if (!name) { msg.textContent = "방 이름을 적어 주세요. (예: 동창회)"; $("roomName").focus(); return; }
+    btn.disabled = true;
+    msg.textContent = "방을 만드는 중… 🚪";
+    for (let tries = 0; tries < 5; tries++) {
+      const code = makeRoomCode();
+      try {
+        await window.claude.yutRoom.create(code, name);
+        rememberRoom(code, name);
+        msg.textContent = `✅ '${name}' 방을 만들었어요! (코드 ${code}) 방으로 들어가요…`;
+        location.href = roomUrl(code);
+        return;
+      } catch (err) {
+        if (err && err.code === "exists") continue;   // 같은 코드가 이미 있으면 다른 코드로
+        msg.textContent = "방을 만들지 못했어요 😢 인터넷을 확인하거나, 운영자에게 '보안 규칙'을 새로 넣었는지 물어봐 주세요.";
+        break;
+      }
+    }
+    btn.disabled = false;
+  });
+  $("roomJoinForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const code = $("roomCode").value.trim().toUpperCase(), msg = $("roomMsg");
+    if (!ROOM_RE.test(code)) { msg.textContent = "방 코드는 영어·숫자 5글자예요. (예: K7QX2)"; return; }
+    msg.textContent = "방을 찾는 중…";
+    let info = null;
+    try { info = await window.claude.yutRoom.get(code); } catch (err) { }
+    if (!info) { msg.textContent = `'${code}' 방이 없어요. 코드를 다시 확인해 주세요.`; return; }
+    rememberRoom(code, info.name);
+    location.href = roomUrl(code);
+  });
+  $("roomCopy").addEventListener("click", function () { copyText(shareUrl() || "", this); });
+  $("roomHome").addEventListener("click", function () { location.href = roomUrl(null); });
+  renderRoomBar();
 
   // 카톡·네이버·인스타 등 앱 안 브라우저: 나중에 크롬으로 열면 '다른 사람'이 돼요
   function inAppName(ua) {
@@ -4566,11 +4830,9 @@
   function spotName(n) {
     if (n === "S") return "대기";
     if (n === "FIN") return "골인 🏁";
-    const named = { O0: "출발 자리", O5: "모 자리", O10: "뒷모 자리", O15: "찌모 자리", C: "방(가운데)", O12: "×2 칸", E2: "퐁당 칸", O18: "퐁당 칸",
-      A1: "모→방 1번째", A2: "모→방 2번째", B1: "뒷모→방 1번째", B2: "뒷모→방 2번째", D1: "방→찌모 1번째", D2: "방→찌모 2번째", E1: "방→출발 1번째" };
-    if (named[n]) return named[n];
-    const i = Number(n.slice(1));
-    return ["출발→모", "모→뒷모", "뒷모→찌모", "찌모→출발"][Math.floor(i / 5)] + " " + (i % 5) + "번째 칸";
+    // 말판에 적힌 전통 이름 그대로 (특별한 칸은 뜻도 함께)
+    const extra = { O0: "(출발)", C: "(가운데)", O12: "(×2 칸)", E2: "(퐁당 칸)", O18: "(퐁당 칸)" };
+    return SPOT_NAMES[n] + (extra[n] ? " " + extra[n] : "") + " 자리";
   }
   function stepText(st, team) {
     const who = st.node === "S" ? "새 말" : `${spotName(st.node)} 말` + (st.count > 1 ? ` ${st.count}개(업힘)` : "");
@@ -4704,7 +4966,8 @@
   // 새로 띄운 창들: Esc로 닫기
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
-    if (!$("qr").hidden) $("qr").hidden = true;
+    if (!$("roomSheet").hidden) $("roomSheet").hidden = true;
+    else if (!$("qr").hidden) $("qr").hidden = true;
     else if (!$("award").hidden) closeAward();
     else if (!$("turnAlert").hidden) hideTurnAlert();
   });
