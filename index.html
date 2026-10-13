@@ -93,6 +93,14 @@
     margin: 0 0 18px;
     letter-spacing: 0.02em;
   }
+  /* 만든 사람 · 문의 */
+  .byline { margin: -10px 0 18px; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: center; font-size: 16px; color: var(--muted); }
+  .maker { font-style: italic; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--accent); }
+  .contact-btn { font-size: 15px; color: var(--fg); text-decoration: none; }
+  .contact-btn:hover { text-decoration: underline; }
+  .contact-mail { display: inline-flex; gap: 6px; align-items: center; }
+  .contact-mail .mail { user-select: all; color: var(--fg); background: var(--soft); padding: 2px 8px; border-radius: 6px; }
+  .contact-mail .small-btn { font-size: 13px; padding: 2px 10px; }
   .game-info { margin: -6px 0 16px; font-size: 18px; display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center; }
   .game-info .empty-info { color: var(--muted); font-size: 15px; }
 
@@ -1047,6 +1055,14 @@
 
 <main>
   <h1>🎉 친가회 윷놀이 🎉</h1>
+  <p class="byline">
+    <em class="maker">made by 일하선생</em>
+    <button class="link-btn contact-btn" id="contactBtn" aria-expanded="false" aria-controls="contactMail">✉️ 문의</button>
+    <span class="contact-mail" id="contactMail" hidden>
+      <span class="mail" id="contactAddr">minpoet@gmail.com</span>
+      <button class="small-btn" id="contactCopy">복사</button>
+    </span>
+  </p>
   <p class="game-info" id="gameInfo"></p>
 
   <!-- 빠른 메뉴 -->
@@ -1181,12 +1197,12 @@
     <details class="rules">
       <summary>말 옮기는 방법 · 규칙 보기</summary>
       <ul>
-        <li>윷을 던진 다음, 자기 팀 말을 <b>끌어서</b> 놓거나, 말을 <b>한 번 누르고</b> 갈 자리를 누르세요.</li>
+        <li>윷을 던진 다음, 자기 팀 말을 <b>끌어서</b> 놓거나, 말을 <b>한 번 누르고</b> 갈 자리를 누르세요. 다른 우리 말을 누르면 <b>바로 그 말로 바꿔 골라져요.</b> (우리 말 위에 업으려면 끌어서 놓아요)</li>
         <li>처음 나가는 말은 아래 팀 칸(대기 중)에서 끌어오면 돼요. 출발은 오른쪽 아래 <b>참먹이(출발)</b> 자리예요. 칸마다 전통 윷판 이름(도·개·걸·윷·모, 뒷도…, 방, 안찌…)이 적혀 있어요.</li>
         <li>윷·모가 나오면 한 번 더 던져요. 나온 것들은 <b>원하는 순서대로</b> 원하는 말에 쓸 수 있고, 다시 던지기 <b>전에 미리 옮겨 둘 수도</b> 있어요.</li>
         <li><b>낙(落)</b>: 윷가락이 멍석 선 밖으로 떨어지면 무효! 아직 <b>옮기지 않고 모아 둔 윷·모까지 전부 무효</b>가 되고 차례가 끝나요.</li>
         <li>모서리(<b>모</b>, <b>뒷모</b>)나 가운데(<b>방</b>)에 <b>딱 멈추면</b> 다음에 지름길로 가요.</li>
-        <li>상대 말이 있는 자리에 멈추면 <b>잡아요!</b> 잡힌 말은 처음으로 돌아가요. 도·개·걸·빽도로 잡으면 한 번 더 던지지만, <b>윷·모로 잡으면 더 던지기는 없어요.</b></li>
+        <li>상대 말이 있는 자리에 멈추면 <b>잡아요!</b> 잡힌 말은 처음으로 돌아가요. 도·개·걸로 잡으면 한 번 더 던지지만, <b>윷·모·빽도로 잡으면 더 던지기는 없어요.</b></li>
         <li>우리 팀 말이 있는 자리에 멈추면 <b>업어서</b> 함께 움직여요.</li>
         <li><b>💦 퐁당</b> (방→출발 2번째 칸, 찌모→출발 3번째 칸): 여기 멈추면 물에 빠져서 <b>처음부터 다시</b>!</li>
         <li><b>×2</b> (뒷모→찌모 2번째 칸): 여기 멈추면 대기 말로 <b>볶아요</b>. 1개가 오면 2개, 2개가 오면 4개! 대기 말이 모자라면 하나도 못 볶아요.</li>
@@ -1256,8 +1272,8 @@
   <section class="sheet alert-card" role="alertdialog" aria-modal="true" aria-labelledby="turnAlertTitle">
     <div class="big-face" id="turnAlertFace"></div>
     <div class="alert-title" id="turnAlertTitle"></div>
-    <p class="setup-note">윷을 던질 차례예요! 🥢</p>
-    <button class="again-btn" id="turnAlertGo">🥢 던지러 가기</button>
+    <p class="setup-note">아래 버튼을 누르면 바로 윷이 날아가요! 🥢</p>
+    <button class="again-btn" id="turnAlertGo">🥢 바로 던지기</button>
   </section>
 </div>
 
@@ -1707,6 +1723,8 @@
   const DOUBLE = "O12";            // ×2: 여기 멈추면 대기 말로 볶기
   const BY_FLATS = { 0: "모", 1: "도", 2: "개", 3: "걸", 4: "윷" };   // 배가 위로 나온 개수 → 결과
   const isBonus = r => r === "윷" || r === "모";
+  // 잡았을 때 한 번 더 던지기: 도·개·걸로 잡았을 때만 (윷·모·빽도로 잡으면 없음)
+  const catchAgain = r => !isBonus(r) && r !== "빽도";
   // 낙 나오는 정도: 안 나옴 · 가끔 3% · 좀 더 6% · 많이 10%
   const NAK_RATES = [0, 0.03, 0.06, 0.1];
   const DEFAULT_NAK = 0.03;
@@ -2647,7 +2665,7 @@
         const hit = list.filter(pc => pc.n === dest);
         if (hit.length) { ev.caught.push([t, hit.length]); hit.forEach(pc => { pc.n = "S"; pc.t = []; }); }
       });
-      if (ev.caught.length && !isBonus(r)) { g.owed++; out.extra++; }
+      if (ev.caught.length && catchAgain(r)) { g.owed++; out.extra++; }
       // ×2 볶기: 온 말 수만큼 대기 말을 더 붙여요 (모자라면 하나도 못 볶아요)
       if (dest === DOUBLE) {
         const k = group.length;
@@ -2701,9 +2719,9 @@
       }
       if (s.caught.length) {
         const who = s.caught.map(([t, n]) => `${ANIMALS[t].emoji} ${n > 1 ? ANIMALS[t].name + " " + n + "마리" : ANIMALS[t].name}`).join(", ");
-        const again = !isBonus(r);
+        const again = catchAgain(r);
         msgs.push(`잡았다!! ${me.emoji} ${me.name}${josa(me.name, "이", "가")} ${who}${josa(who, "을", "를")} 집으로 돌려보냈어요! 🤣 ` +
-          (again ? "한 번 더 던지세요!" : `(${r}로 잡아서 더 던지기는 없어요)`));
+          (again ? "한 번 더 던지세요!" : `(${r}${josa(r, "으로", "로")} 잡아서 더 던지기는 없어요)`));
         useSound("catch");
       }
       if (s.x2) {
@@ -2794,13 +2812,20 @@
     return true;
   }
 
+  // 말을 톡 눌렀을 때: "move" = 골라 둔 말을 그 자리로 (상대 말 잡기), "select" = 이 말을 고르기
+  function tapIntent(sel, team, node) {
+    if (!sel || (sel.team === team && sel.node === node)) return "select";
+    if (node === "S" || team === sel.team) return "select";   // 우리 팀 다른 말 → 바로 바꿔 고르기
+    return "move";
+  }
   function bindToken(el) {
     el.addEventListener("pointerdown", function (e) {
       e.preventDefault();
       ensureAudio();
       const team = Number(el.dataset.team), node = el.dataset.node;
-      // 내 말을 골라 둔 상태에서 다른 자리의 말을 누르면 → 그 자리로 이동 (잡기·업기)
-      if (selected && !(selected.team === team && selected.node === node) && node !== "S") {
+      // 말을 골라 둔 상태에서 상대 말을 누르면 → 그 자리로 이동 (잡기)
+      // 우리 팀 다른 말을 누르면 → 바로 그 말로 선택이 바뀌어요 (업기는 끌어서 놓기로)
+      if (tapIntent(selected, team, node) === "move") {
         const from = selected;
         tryMove(from, node);
         return;
@@ -2923,25 +2948,21 @@
     const bb = els.bounds ? els.bounds.getBoundingClientRect() : null;
     const bounds = bb ? { left: bb.left + 4, right: bb.right - 4 } : { left: 0, right: window.innerWidth };
 
-    // 공중에서 앞뒤가 무작위로 휙휙 뒤집히기
-    const flipper = setInterval(function () {
-      els.sticks.forEach(function (s) {
-        const f = Math.random() < 0.5;
-        s.classList.toggle("flat", f);
-        s.classList.toggle("round", !f);
-        s.textContent = f ? "" : "✕ ✕ ✕";
-      });
-    }, 120);
-
-    // 윷가락마다 높이·옆으로 날아가는 정도·도는 방향과 바퀴 수가 모두 무작위
+    // 진짜 윷가락처럼: 위로 솟구치며 점점 느려지고 → 꼭대기에서 잠깐 → 점점 빨리 떨어지고 →
+    // 바닥에 '탁' 닿아 한 번 통 튀었다가 → 살짝 흔들리며 멈춰요.
+    // 공중에서는 머리와 꼬리가 뒤집히며 데굴데굴 (rotateX), 몸은 천천히 한두 바퀴 돌아요 (rotateZ).
+    // 바퀴 수는 꼭 한 바퀴 단위로 끝나서, 다 떨어진 뒤 '휙 되감기'가 없어요.
+    const DUR = reduceMotion ? 400 : 2000;
+    const T_TOP = 0.40, T_HIT = 0.78, T_BOUNCE = 0.87, T_SETTLE = 0.94;
+    const tf = (x, y, z, a, sc) => `perspective(800px) translate(${x}px, ${y}px) rotateZ(${z}deg) rotateX(${a}deg) scale(${sc})`;
     const flights = Array.from(els.sticks, function (s, idx) {
-      const h = rand(180, 320) * (els.mat === $("mat") ? 1 : 0.6);
-      const x1 = rand(-80, 80), x2 = x1 + rand(-50, 50);
-      const dir = Math.random() < 0.5 ? -1 : 1;
-      const spin = dir * rand(540, 1260);
-      const tilt = rand(-12, 12);
+      const h = rand(190, 320) * (els.mat === $("mat") ? 1 : 0.6);
+      const x1 = rand(-70, 70);
+      const z = (Math.random() < 0.5 ? -1 : 1) * 360 * (Math.random() < 0.6 ? 1 : 2);   // 몸 돌기: 1~2바퀴
+      const rx = (Math.random() < 0.5 ? -1 : 1) * 360 * (Math.random() < 0.5 ? 2 : 3);   // 데굴데굴: 2~3바퀴
+      const tilt = rand(-12, 12), wob = rand(-22, 22), bh = rand(14, 30);
       // 기본: 제자리 근처에 떨어짐 / 낙: 멍석 바깥까지 굴러감
-      let land = [0, 0, tilt], near = [x2 / 3, 0], bounce = [x2 / 4, -18];
+      let land = [rand(-8, 8), 0, tilt];
       if (plan.nak && idx === plan.outIdx) {
         // 윷가락 전체가 멍석 선 바깥에 떨어져야 낙 (선에 걸치면 안 돼요)
         // 원래 자리(지난번 던지기에서 움직인 것 말고)의 가운데를 기준으로 계산해요
@@ -2949,29 +2970,53 @@
         const lean = rand(5, 10);
         const out = nakLanding(matBox, cx0, s.offsetWidth, s.offsetHeight, lean, bounds);
         land = [out.dx, rand(0, 30), out.side * lean];
-        near = [land[0] * 0.6, 0];
-        bounce = [land[0] * 0.9, -20];
       }
-      return s.animate([
-        { transform: "translate(0, 0) rotate(0deg)" },
-        { transform: `translate(${x1}px, ${-h}px) rotate(${spin * 0.4}deg)`, offset: 0.4 },
-        { transform: `translate(${x2}px, ${-h * 0.85}px) rotate(${spin * 0.55}deg)`, offset: 0.5 },
-        { transform: `translate(${near[0]}px, ${near[1]}px) rotate(${spin}deg)`, offset: 0.85 },
-        { transform: `translate(${bounce[0]}px, ${bounce[1]}px) rotate(${spin + tilt * 2}deg)`, offset: 0.92 },
-        { transform: `translate(${land[0]}px, ${land[1]}px) rotate(${land[2]}deg)` }
-      ], {
-        duration: reduceMotion ? 400 : 2000,
-        delay: reduceMotion ? 0 : rand(0, 150),
-        easing: "ease-in-out",
-        fill: "forwards"
-      }).finished;
+      const gx = x1 * 0.35 + land[0] * 0.5;   // 처음 바닥에 닿는 곳
+      const anim = s.animate([
+        { transform: tf(0, 0, 0, 0, 1), easing: "cubic-bezier(0.15, 0.6, 0.35, 1)" },
+        { transform: tf(x1, -h, z * 0.42, rx * 0.45, 1.12), offset: T_TOP, easing: "cubic-bezier(0.55, 0, 0.85, 0.45)" },
+        { transform: tf(gx, land[1], z, rx, 1), offset: T_HIT, easing: "cubic-bezier(0.2, 0.6, 0.4, 1)" },
+        { transform: tf(gx + (land[0] - gx) * 0.6, land[1] - bh, z + tilt * 1.6, rx + wob, 1.03), offset: T_BOUNCE, easing: "cubic-bezier(0.5, 0, 0.9, 0.5)" },
+        { transform: tf(land[0] * 0.96, land[1], z + tilt * 0.8, rx - wob * 0.3, 1), offset: T_SETTLE, easing: "ease-out" },
+        { transform: tf(land[0], land[1], z + tilt, rx, 1) }
+      ], { duration: DUR, delay: reduceMotion ? 0 : rand(0, 140), easing: "linear", fill: "forwards" });
+      return { s, anim, rx, wob, done: anim.finished };
     });
 
-    // 떨어지는 순간 딱딱 소리
-    setTimeout(function () { if (audio) playClack(); }, reduceMotion ? 300 : 1700);
+    // 보이는 면: 데굴데굴 돌아간 각도에 맞춰 배·등이 바뀌고, 땅에 닿을 때는 나올 면이 위로
+    // 돌아간 각도 (대략): 던지자마자 결과 면이 보이면 안 되니, 처음 반 바퀴 전까지는 그대로 둬요 (null)
+    function faceAt(p, f) {
+      let a;
+      if (p <= T_TOP) a = f.rx * 0.45 * (1 - Math.pow(1 - p / T_TOP, 2.2));
+      else if (p <= T_HIT) a = f.rx * (0.45 + 0.55 * Math.pow((p - T_TOP) / (T_HIT - T_TOP), 2.2));
+      else a = f.rx;
+      if (p < T_TOP && Math.abs(a) < 90) return null;
+      return Math.cos(a * Math.PI / 180) >= 0;   // true = 나올 면, false = 반대 면
+    }
+    const setFace = (s, flat) => {
+      if (s.classList.contains("flat") === flat) return;
+      s.classList.toggle("flat", flat);
+      s.classList.toggle("round", !flat);
+      s.textContent = flat ? "" : "✕ ✕ ✕";
+    };
+    let raf = null;
+    if (typeof requestAnimationFrame === "function") {
+      const tick = function () {
+        flights.forEach(function (f, i) {
+          const p = f.anim.effect && f.anim.effect.getComputedTiming ? f.anim.effect.getComputedTiming().progress : null;
+          const front = faceAt(typeof p === "number" ? p : 0, f);
+          if (front !== null) setFace(f.s, front ? plan.flats[i] : !plan.flats[i]);
+        });
+        raf = requestAnimationFrame(tick);
+      };
+      tick();
+    }
 
-    return Promise.all(flights).then(function () {
-      clearInterval(flipper);
+    // 바닥에 닿는 순간 딱딱 소리
+    setTimeout(function () { if (audio) playClack(); }, reduceMotion ? 300 : DUR * T_HIT + 40);
+
+    return Promise.all(flights.map(f => f.done)).then(function () {
+      if (raf !== null) cancelAnimationFrame(raf);
       els.sticks.forEach(function (s, i) {
         s.classList.toggle("flat", plan.flats[i]);
         s.classList.toggle("round", !plan.flats[i]);
@@ -3506,6 +3551,7 @@
   });
 
   function renderAll() {
+    renderRoomBar();
     // 입력하던 칸이 다시 그려져도 계속 입력할 수 있게
     const a = document.activeElement, id = a && a.id, pos = a && a.selectionStart;
     renderHostKey();
@@ -4258,10 +4304,12 @@
     $("turnAlert").hidden = true;
     if (titleBase !== null) document.title = titleBase;
   }
+  // 🥢 바로 던지기: 알림창에서 누르면 멍석으로 가면서 그대로 던져요 (한 번만 누르면 끝)
   $("turnAlertGo").addEventListener("click", function () {
     hideTurnAlert();
     $("mat").scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
-    throwBtn.focus({ preventScroll: true });
+    if (!throwBtn.disabled) throwBtn.click();
+    else throwBtn.focus({ preventScroll: true });
   });
 
   // 위쪽 던지기 버튼이 화면 밖이면, 아래에 똑같은 버튼을 띄워요
@@ -4378,6 +4426,8 @@
   // =====================================================================
   // ---------- 🚪 방 만들기 · 들어가기 (GitHub판) ----------
   // =====================================================================
+  const roomMenuFor = (has, room, host) => has && (!room || !!host);
+  let roomTitled = false;
   function makeRoomCode(rnd) {
     rnd = rnd || Math.random;
     let s = "";
@@ -4397,7 +4447,10 @@
     try { localStorage.setItem("yut-rooms", JSON.stringify(list)); } catch (e) { }
   }
   function renderRoomBar() {
-    $("roomBtn").hidden = !hasRooms();
+    // 초대받아 방에 들어온 사람에게는 방 만들기·들어가기 메뉴와 '기본 방으로'를 숨겨요 (방장·운영자만 보여요)
+    const menu = roomMenuFor(hasRooms(), ROOM, ON.isHost);
+    $("roomBtn").hidden = !menu;
+    $("roomHome").hidden = !menu;
     const bar = $("roomBar");
     if (!hasRooms() || !ROOM_ASK.asked) { bar.hidden = true; return; }
     bar.hidden = false;
@@ -4419,9 +4472,12 @@
     code.textContent = ROOM;
     t.append("🚪 ", b, " 방 · 코드 ", code);
     if (ON.isHost && ON.room && ON.room.host === ON.me) t.append(" ", hostBadge());
-    if (name) rememberRoom(ROOM, name);
-    document.title = (name ? name + " · " : "") + "친가회 윷놀이";
-    if (titleBase !== null) titleBase = document.title;
+    if (name && !roomTitled) {   // 방 이름은 처음 한 번만 (탭 제목의 '내 차례!'를 덮지 않게)
+      roomTitled = true;
+      rememberRoom(ROOM, name);
+      document.title = name + " · 친가회 윷놀이";
+      if (titleBase !== null) titleBase = document.title;
+    }
   }
   function openRooms() {
     $("roomSheet").hidden = false;
@@ -4840,7 +4896,7 @@
     const to = st.out.split ? "각자 온 길로 한 칸 뒤" : s0.goal ? "골인 🏁" : spotName(s0.dest);
     const fx = [];
     st.out.spots.forEach(function (s) {
-      if (s.caught.length) fx.push("💥 잡기!" + (isBonus(st.r) ? "" : " 한 번 더 던져요"));
+      if (s.caught.length) fx.push("💥 잡기!" + (catchAgain(st.r) ? " 한 번 더 던져요" : ""));
       if (s.pond) fx.push("💦 퐁당");
       if (s.x2 && s.x2.ok) fx.push("🔥 ×2 볶기");
       if (s.stack) fx.push("🤝 업기");
@@ -4962,6 +5018,14 @@
     aiApplying = false;
     renderGame();
   });
+
+  // ✉️ 문의: 누르면 이메일 주소를 보여 줘요 (다시 누르면 숨김)
+  $("contactBtn").addEventListener("click", function () {
+    const box = $("contactMail");
+    box.hidden = !box.hidden;
+    this.setAttribute("aria-expanded", box.hidden ? "false" : "true");
+  });
+  $("contactCopy").addEventListener("click", function () { copyText($("contactAddr").textContent, this); });
 
   // 새로 띄운 창들: Esc로 닫기
   document.addEventListener("keydown", function (e) {
