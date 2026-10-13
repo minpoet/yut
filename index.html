@@ -405,6 +405,25 @@
   .winner .rank-line { padding: 2px 6px; }
   .winner .rank-line .dt { display: none; }
 
+  /* 다른 팀: 골인 / 판 위 / 대기 숫자 (팀 수에 따라 크기가 바뀌어요) */
+  .others { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 8px; --fs: calc(60px / var(--n) + 8px); }   /* 1팀 68px · 2팀 38px · 3팀 28px */
+  .other-card { border: 2px solid var(--tc); border-radius: 14px; background: var(--panel); padding: 8px 6px 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+  .other-card.now { box-shadow: 0 0 0 4px var(--tc); }
+  .other-head { display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 14px; max-width: 100%; }
+  .other-head span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .other-nums { display: flex; align-items: flex-start; justify-content: center; gap: 0.15em; font-family: var(--font-display); font-size: var(--fs); line-height: 1; font-variant-numeric: tabular-nums; }
+  .other-nums .num { display: inline-flex; flex-direction: column; align-items: center; min-width: 1em; }
+  .other-nums .num small { font-family: var(--font-body); font-size: 12px; color: var(--muted); margin-top: 4px; white-space: nowrap; }
+  .other-nums .sl { color: var(--muted); font-size: 0.7em; padding-top: 0.12em; }
+  .other-cap { display: none; font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .others.tight .other-nums .num small { display: none; }
+  .others.tight .other-cap { display: block; }
+  .others.tight .other-card { padding: 6px 4px 8px; }
+  .others.tight .other-head { font-size: 13px; gap: 4px; }
+  .others.tight .other-nums { font-size: min(var(--fs), 7vw); gap: 0.05em; }   /* 아주 작은 폰에서도 칸 안에 */
+  .others.tight .other-nums .num { min-width: 0.75em; }
+  .others.tight .other-cap { font-size: 10px; }
+
   /* 🖼️ 전용 아이콘 */
   .ic { display: inline-flex; width: 1.15em; height: 1.15em; flex: none; }
   .ic svg { width: 100%; height: 100%; }
@@ -1225,6 +1244,16 @@
   body:not([data-tab="record"]) .board { display: none; }
   body[data-tab="record"] main > :not(.appbar):not(.board):not(.game-info) { display: none !important; }
   body[data-tab="record"] .board { margin-top: 6px; padding-top: 0; border-top: none; }
+
+  /* 📱 휴대폰을 가로로 눕혔을 때: 화면 높이가 낮으니 위 차례 줄은 붙어 다니지 않고, 말판은 높이에 맞춰요 */
+  @media (orientation: landscape) and (max-height: 520px) {
+    .hud { position: static; }
+    .game { max-width: min(560px, calc(100vh - 84px)); }
+    .throw-sheet { max-height: calc(100vh - 70px); overflow-y: auto; }
+    .throw-sheet .sticks { height: 130px; }
+    #mat .stick { height: 118px; }
+    .throw-sheet #result { font-size: 38px; min-height: 44px; }
+  }
 
   /* 📺 TV 화면: 왼쪽에 멍석(늘 보임), 오른쪽에 큰 말판 */
   body.tv .tabbar, body.tv .menu-btn, body.tv .byline, body.tv .inapp, body.tv #welcomeBar, body.tv #hostLogin, body.tv #onlineBar,
@@ -2975,9 +3004,12 @@
     }
 
     // 팀 칸: 대기 중인 말과 골인한 말
+    // 내 팀만 말 보관소(대기 말 · 골인 말)를 크게, 다른 팀은 '골인 / 판 위 / 대기' 숫자로
     const trays = $("trays");
     trays.innerHTML = "";
+    const mine = TV ? null : viewTeam();
     for (let team = 0; team < g.teams; team++) {
+      if (team !== mine) continue;
       const list = g.pieces[team];
       const tray = document.createElement("div");
       tray.className = "tray" + (currentTeam() === team && g.winner === null ? " now" : "");
@@ -3008,6 +3040,42 @@
       body.appendChild(done);
       tray.append(head, body);
       trays.appendChild(tray);
+    }
+    const others = [];
+    for (let t = 0; t < g.teams; t++) if (t !== mine) others.push(t);
+    if (others.length) {
+      const box = document.createElement("div");
+      box.className = "others" + (others.length >= 3 ? " tight" : "");   // 3팀이면 숫자 아래 이름표를 한 줄로
+      box.style.setProperty("--n", others.length);   // 다른 팀 수에 따라 숫자 크기가 바뀌어요 (1팀 크게 · 3팀 꽉 채워)
+      others.forEach(function (t) {
+        const c = teamScore(g, t);
+        const card = document.createElement("div");
+        card.className = "other-card" + (currentTeam() === t && g.winner === null ? " now" : "");
+        card.style.setProperty("--tc", `var(${ANIMALS[t].color})`);
+        const head = document.createElement("div");
+        head.className = "other-head";
+        const nm = document.createElement("span");
+        nm.textContent = teamName(t).replace(/^\S+ /, "");
+        head.append(teamLogo(t, 24), nm);
+        const nums = document.createElement("div");
+        nums.className = "other-nums";
+        nums.setAttribute("aria-label", `${teamName(t)}: 골인 ${c.fin}개, 판 위 ${c.board}개, 대기 ${c.wait}개`);
+        [[c.fin, "골인"], [c.board, "판 위"], [c.wait, "대기"]].forEach(function ([n, label], i) {
+          if (i) { const sl = document.createElement("span"); sl.className = "sl"; sl.textContent = "/"; sl.setAttribute("aria-hidden", "true"); nums.appendChild(sl); }
+          const it = document.createElement("span");
+          it.className = "num";
+          const b = document.createElement("b"); b.textContent = n;
+          const sm = document.createElement("small"); sm.textContent = label;
+          it.append(b, sm);
+          nums.appendChild(it);
+        });
+        const cap = document.createElement("div");
+        cap.className = "other-cap";
+        cap.textContent = "골인 / 판 위 / 대기";
+        card.append(head, nums, cap);
+        box.appendChild(card);
+      });
+      trays.appendChild(box);
     }
 
     // 상태 줄: 누구 차례, 남은 이동
@@ -3054,6 +3122,12 @@
     selected = null;
   }
   // 차례가 끝나면 명단 순서대로 다음 사람에게 넘어가요 (판이 끝났으면 그대로)
+  // 이 화면의 '내 팀': 대신 진행 중이면 그 차례 팀 → 온라인이면 내가 속한 팀 → 아니면 지금 차례 팀
+  function viewTeam() {
+    if (state.current !== null && myTurn() && currentTeam() !== null) return currentTeam();
+    if (online() && ON.me) { const me = state.players.find(p => p.uid === ON.me); if (me) return me.team; }
+    return currentTeam() !== null ? currentTeam() : 0;
+  }
   function nextPlayerIndex(i) {
     const n = active().length;
     if (!n) return null;
