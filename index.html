@@ -11,7 +11,7 @@
     --bg: #f7efe0;        /* 한지 색 */
     --panel: #fffaf1;
     --fg: #4a2c17;        /* 먹빛 갈색 */
-    --muted: #8a7562;
+    --muted: #6f5a47;     /* 안내 글씨 (바탕과 대비 4.5:1 이상) */
     --line: #e3d2b6;
     --wood-light: #f3d9a6;
     --wood-dark: #a8682f;
@@ -337,7 +337,9 @@
     touch-action: none;
     user-select: none;
   }
-  .yutpan svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .yutpan > svg { position: absolute; inset: 0; width: 100%; height: 100%; }   /* 말판 그림 · AI 화살표만 (안쪽 작은 그림들은 제 크기로) */
+  .winner svg { display: block; width: 100%; height: auto; }
+  .winner .team-logo svg { width: 86%; height: 86%; }
   .yutpan .ln { stroke: var(--board-line); stroke-width: 4; stroke-linecap: round; fill: none; }
   .yutpan .spot { fill: var(--panel); stroke: var(--board-line); stroke-width: 3; }
   .yutpan .spot.big { fill: var(--wood-light); }
@@ -388,6 +390,52 @@
     60%  { transform: translate(-50%, -50%) scale(0.9); }
     100% { transform: translate(-50%, -50%) scale(1); }
   }
+  /* 🏅 최종 순위표 */
+  .rank-table { display: flex; flex-direction: column; gap: 4px; width: 100%; font-family: var(--font-body); }
+  .rank-line { display: grid; grid-template-columns: 2.2em 28px minmax(0, 1fr) auto; grid-template-areas: "md logo tn pt" "md logo dt dt"; align-items: center; column-gap: 6px; padding: 4px 8px; border-radius: 10px; background: var(--bg); text-align: left; }
+  .rank-line.first { background: var(--flash); }
+  .rank-line .md { grid-area: md; font-size: 20px; text-align: center; }
+  .rank-line .team-logo { grid-area: logo; }
+  .rank-line .tn { grid-area: tn; font-weight: bold; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rank-line .pt { grid-area: pt; font-family: var(--font-display); font-size: 17px; font-variant-numeric: tabular-nums; }
+  .rank-line .dt { grid-area: dt; font-size: 12px; color: var(--muted); }
+  .winner .rank-table { max-width: 100%; }
+  .winner.with-rank { inset: 5%; gap: 4px; font-size: clamp(18px, 5vw, 28px); }
+  .winner.with-rank > div:first-child { width: 15% !important; }
+  .winner .rank-line { padding: 2px 6px; }
+  .winner .rank-line .dt { display: none; }
+
+  /* 🖼️ 전용 아이콘 */
+  .ic { display: inline-flex; width: 1.15em; height: 1.15em; flex: none; }
+  .ic svg { width: 100%; height: 100%; }
+  .chat-fab { display: flex; align-items: center; justify-content: center; }
+  .chat-fab .ic { width: 30px; height: 30px; }
+
+  /* 🏃 결과 동물 달리기 */
+  .runner { position: fixed; left: 0; z-index: 26; pointer-events: none; }
+  .runner-body { width: 100%; height: 100%; animation: runbob 0.25s ease-in-out infinite alternate; filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.25)); }
+  .runner-body svg { width: 100%; height: 100%; display: block; }
+  @keyframes runbob { from { transform: translateY(0) rotate(-6deg); } to { transform: translateY(-16%) rotate(6deg); } }
+  .runner-tag {
+    position: absolute; left: 50%; top: -14px; transform: translateX(-50%);
+    font-family: var(--font-display); font-size: 20px; white-space: nowrap;
+    background: var(--accent); color: var(--on-accent); padding: 1px 10px; border-radius: 999px;
+  }
+  .runner-dust { position: fixed; z-index: 25; font-size: 26px; pointer-events: none; animation: dust 0.7s ease-out forwards; }
+  @keyframes dust { from { transform: scale(0.6); opacity: 0.9; } to { transform: translate(-30px, -10px) scale(1.4); opacity: 0; } }
+  .shake { animation: matshake 0.45s ease-in-out; }
+  @keyframes matshake {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-6px, 2px) rotate(-1deg); }
+    40% { transform: translate(6px, -2px) rotate(1deg); }
+    60% { transform: translate(-4px, 1px); }
+    80% { transform: translate(3px, -1px); }
+  }
+
+  /* 🐾 콩콩 뛰어가는 말 */
+  .hop-layer { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+  .hop-ghost { cursor: default; z-index: 4; }
+  .hop-splash { position: absolute; transform: translate(-50%, -60%); font-size: 34px; animation: pop 0.6s ease-out; pointer-events: none; }
   .ghost { position: fixed; pointer-events: none; z-index: 20; opacity: 0.85; transform: translate(-50%, -50%) scale(1.15); }
   .winner {
     position: absolute;
@@ -476,6 +524,9 @@
   .empty { color: var(--muted); padding: 10px 0; }
 
   /* 왕 카드 */
+  .empty-state { grid-column: 1 / -1; display: flex; gap: 14px; align-items: center; padding: 18px; border: 2px dashed var(--line); border-radius: var(--r-md, 14px); color: var(--muted); }
+  .empty-state b { color: var(--fg); }
+  .empty-icon { font-size: 40px; }
   .kings { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
   .king { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; min-width: 0; }
   .king .label { font-size: 14px; color: var(--muted); letter-spacing: 0.04em; }
@@ -763,6 +814,20 @@
     font-size: 14px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); opacity: 0.6;
   }
   .tv-exit:hover { opacity: 1; }
+  /* 📖 윷놀이 규칙 */
+  .rule-summary { background: var(--panel); border: 3px solid var(--accent); border-radius: 14px; padding: 12px 14px; }
+  .rule-summary b { font-family: var(--font-display); font-weight: 400; font-size: 20px; color: var(--accent); }
+  .rule-summary ol { margin: 6px 0 0; padding-left: 1.4em; line-height: 1.7; }
+  .rule-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; margin: 8px 0; }
+  .rule-res { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: 12px; background: var(--bg); border: 2px solid var(--line); }
+  .rule-res .mini-sticks { display: flex; gap: 3px; }
+  .rule-res .ms { width: 9px; height: 34px; border-radius: 5px; border: 1.5px solid var(--wood-line); display: flex; align-items: center; justify-content: center; font-size: 7px; line-height: 1; }
+  .rule-res .ms.f { background: var(--wood-light); }
+  .rule-res .ms.r { background: var(--wood-dark); }
+  .rule-res .ms.mark::after { content: "●"; color: var(--accent); }
+  .rule-res .nm { font-family: var(--font-display); font-size: 22px; }
+  .rule-res .mv { font-size: 13px; color: var(--muted); text-align: center; }
+
   /* 🚪 방 */
   .room-bar {
     display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: center;
@@ -819,25 +884,7 @@
   body.big .token { width: 13.5%; }
   body.big .ai-steps li { font-size: 20px; }
   body.big details.rules, body.big .about-sec p, body.big .about-sec ul { font-size: 19px; }
-  /* 📺 TV 화면: 말판과 윷가락만 크게 */
-  body.tv .quick, body.tv .inapp, body.tv #welcomeBar, body.tv #hostLogin, body.tv #onlineBar, body.tv #meCard,
-  body.tv #setupBox, body.tv #throwBtn, body.tv .react-bar, body.tv .dock, body.tv .ai-row, body.tv .ai-box,
-  body.tv .game-actions, body.tv details.rules, body.tv .board, body.tv .chat-fab, body.tv .finish-zone, body.tv .game h2 { display: none !important; }
-  body.tv main {
-    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); column-gap: 32px;
-    align-items: start; justify-items: center; padding-block: 16px; padding-inline: 24px; max-width: none;
-  }
-  body.tv main > * { grid-column: 1; }
-  body.tv main h1 { font-size: 34px; margin-bottom: 4px; }
-  body.tv main .game { grid-column: 2; grid-row: 1 / span 12; margin-top: 0; max-width: min(100%, calc(100vh - 150px)); }
-  body.tv .host-line { display: none; }
-  body.tv .sticks { height: 170px; }
-  body.tv #mat .stick { height: 150px; width: 40px; }
-  body.tv #result { margin: 8px 0 0; font-size: 60px; min-height: 70px; }
-  @media (max-width: 760px) {
-    body.tv main { grid-template-columns: minmax(0, 1fr); }
-    body.tv main .game { grid-column: 1; grid-row: auto; }
-  }
+  /* 📺 TV 화면 모양은 맨 아래 'A안' 묶음에 있어요 */
 
   /* 사용법 따라 보기 */
   .tour { position: fixed; inset: 0; z-index: 40; }
@@ -1020,6 +1067,41 @@
     0%   { transform: translate(0, 0) scale(0.4); opacity: 1; }
     100% { transform: translate(var(--dx), var(--dy)) scale(1.2) rotate(var(--rot)); opacity: 0; }
   }
+  /* =================================================================
+     🎨 디자인 시스템: 버튼은 3단계만 · 둥글기 3가지 · 누르는 곳은 44px 이상
+     주요(꽉 찬 빨강) = 화면에서 가장 중요한 1개 / 보조(테두리) / 글자(밑줄)
+     ================================================================= */
+  :root { --r-sm: 8px; --r-md: 14px; --r-pill: 999px; --tap: 44px; --btn: #c0392b; --btn-hover: #a93226; }   /* 버튼 빨강은 두 테마 모두 흰 글씨 대비 5:1 이상 */
+  /* 주요 버튼 */
+  .again-btn, .small-btn.danger, #throwBtn, .dock button {
+    background: var(--btn); color: #ffffff; border: none; border-radius: var(--r-md);
+    min-height: var(--tap); box-shadow: 0 3px 0 #7d2219; font-weight: normal;
+  }
+  .again-btn:hover, .small-btn.danger:hover, #throwBtn:hover:not(:disabled) { background: var(--btn-hover); }
+  .again-btn:active, .small-btn.danger:active, #throwBtn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #7d2219; }
+  #throwBtn:disabled { box-shadow: none; }
+  /* 보조 버튼 (테두리) */
+  .quick-btn, .small-btn, .ai-btn, .icon-btn {
+    background: var(--panel); color: var(--fg); border: 2px solid var(--wood-line); box-shadow: none;
+    min-height: var(--tap); border-radius: var(--r-pill);
+    font-family: var(--font-body); font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .quick-btn { font-size: 17px; padding: 6px 16px; }
+  .quick.sub .quick-btn { font-size: 15px; padding: 6px 14px; border-width: 2px; box-shadow: none; }
+  .small-btn { font-size: 15px; padding: 6px 16px; }
+  .icon-btn { min-width: var(--tap); padding: 4px 8px; font-size: 15px; }
+  .quick-btn:hover, .small-btn:hover, .ai-btn:hover, .icon-btn:hover:not(:disabled) { background: var(--soft); }
+  .quick-btn:active, .small-btn:active, .icon-btn:active { transform: translateY(1px); }
+  .quick-btn[aria-pressed="true"], .quick-btn[aria-expanded="true"] { background: var(--wood-line); color: var(--wood-light); }
+  .ai-btn { border-color: var(--c-nak); color: var(--c-nak); font-family: var(--font-display); font-weight: normal; font-size: 19px; padding: 6px 20px; }
+  /* 글자 버튼 */
+  .link-btn { min-height: var(--tap); padding: 8px 6px; font-size: 15px; color: var(--muted); }
+  .contact-btn { color: var(--fg); }
+  /* 고르기 칩 · 닫기(×) 도 누르기 쉽게 */
+  .chip { min-height: 40px; padding: 8px 14px; border-radius: var(--r-pill); }
+  .chat-close { min-width: var(--tap); min-height: var(--tap); }
+  .player-btn { min-height: var(--tap); }
+
   @media (max-width: 700px) {
     .chat-panel { left: 0; right: 0; bottom: 0; top: auto; width: auto; height: 72vh; border-radius: 16px 16px 0 0; border-bottom: none; }
   }
@@ -1041,44 +1123,171 @@
     .yutpan .start-mark { font-size: 19px; }
     .yutpan .start-sub { font-size: 14px; }
   }
+  /* =================================================================
+     🅰 화면 구조 A안: 말판이 주인공
+     위: 제목줄 · 차례·점수 한 줄(붙어 있음) / 가운데: 말판 / 아래: 탭 + 큰 던지기
+     던지기를 누르면 멍석이 아래에서 쑥 올라왔다가 결과 뒤 내려가요
+     ================================================================= */
+  main { padding-block: 0 calc(118px + env(safe-area-inset-bottom, 0px)); }
+  .appbar { width: 100%; max-width: 640px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-block: 10px 2px; }
+  .appbar .brand { text-align: left; min-width: 0; }
+  .appbar h1 { font-size: clamp(22px, 6.4vw, 30px); margin: 0; }
+  .appbar .byline { margin: 0; justify-content: flex-start; font-size: 14px; gap: 2px 8px; }
+  .appbar .contact-btn { min-height: 32px; padding: 2px 4px; }
+  .menu-btn { font-size: 22px; flex: none; }
+  .game-info { margin: 2px 0 10px; font-size: 15px; }
+  .game-info .empty-info { font-size: 13px; }
+
+  /* 차례 · 점수 한 줄 */
+  .hud {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+    width: 100%; max-width: 640px; box-sizing: border-box; margin-bottom: 10px; padding: 8px 12px;
+    background: var(--panel); border: 2px solid var(--line); border-radius: 16px;
+    display: flex; flex-direction: column; gap: 4px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  .hud-row { display: flex; align-items: center; gap: 10px; }
+  .hud-who { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; text-align: left; }
+  .hud-who .txt { min-width: 0; }
+  .hud-who .nm { display: block; font-weight: bold; font-size: 17px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hud-who small { display: block; color: var(--muted); font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hud-score { display: flex; gap: 4px; flex: none; flex-wrap: wrap; justify-content: flex-end; max-width: 50%; }
+  .hud-score span { display: inline-flex; align-items: center; gap: 3px; font-size: 13px; font-variant-numeric: tabular-nums; padding: 1px 7px 1px 1px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); }
+  .hud .game-status { min-height: 0; font-size: 15px; justify-content: flex-start; }
+  .hud .game-status:empty { display: none; }
+  .turn-hint { display: none; }
+  .game { margin-top: 0; gap: 10px; max-width: min(560px, max(320px, calc(100vh - 250px))); }   /* 낮은 화면(컴퓨터)에서도 말판이 다 보이게 */
+  .game h2 { display: none; }
+
+  /* 참여자: 팀마다 한 줄로 작게 */
+  .players-area { gap: 6px; margin: 12px 0 8px; }
+  .player-list { gap: 6px; }
+  .team-group { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 12px; }
+  .team-group-head { font-size: 14px; gap: 4px; }
+  .player-btn { font-size: 15px; padding: 2px 12px 2px 2px; gap: 6px; }
+  .player-btn .avatar { width: 30px; height: 30px; font-size: 13px; }
+
+  /* 🥢 아래에서 올라오는 멍석 */
+  .throw-sheet {
+    position: fixed; left: 50%; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); z-index: 27;
+    width: min(100%, 560px); box-sizing: border-box; padding: 8px 16px 40px;   /* 아래 둥근 버튼에 글자가 가리지 않게 */
+    background: var(--panel); border: 3px solid var(--wood-line); border-bottom: none; border-radius: 22px 22px 0 0;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.25);
+    transform: translate(-50%, 115%); visibility: hidden;
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1), visibility 0s linear 0.35s;
+  }
+  .throw-sheet.up { transform: translate(-50%, 0); visibility: visible; transition-delay: 0s; }
+  .throw-sheet::before { content: ""; width: 42px; height: 5px; border-radius: 5px; background: var(--line); margin-bottom: 4px; }
+  .throw-who { font-weight: bold; font-size: 15px; min-height: 22px; }
+  .throw-sheet .mat { margin-top: 14px; }
+  .throw-sheet .sticks { height: 180px; }
+  #mat .stick { height: 165px; }
+  .throw-sheet #result { font-size: 52px; margin: 6px 0 0; min-height: 60px; }
+  .throw-sheet #move { font-size: 18px; margin-bottom: 2px; min-height: 26px; }
+  .throw-sheet #cheer { min-height: 0; margin-bottom: 0; }
+
+  /* 맨 아래 탭 + 가운데 던지기 */
+  .tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 28;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) 100px repeat(2, minmax(0, 1fr)); grid-template-rows: 64px; align-items: end;
+    max-width: 640px; margin: 0 auto; box-sizing: border-box; height: calc(64px + env(safe-area-inset-bottom, 0px));
+    padding: 0 6px env(safe-area-inset-bottom, 0px); background: var(--panel); border-top: 1px solid var(--line);
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.08);
+  }
+  .tab {
+    position: relative; height: 64px; min-width: 0; background: none; border: none; color: var(--muted);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 13px;
+  }
+  .tab .ic { width: 25px; height: 25px; }
+  .tab.on { color: var(--accent); font-weight: bold; }
+  .tab.off { visibility: hidden; }
+  .tab-badge { position: absolute; top: 6px; left: calc(50% + 6px); min-width: 18px; height: 18px; line-height: 18px; padding: 0 5px; border-radius: 999px; background: var(--btn); color: #ffffff; font-size: 11px; font-weight: bold; }
+  #throwBtn {
+    justify-self: center; align-self: end; width: 88px; height: 88px; min-height: 88px; margin: 0 0 12px; padding: 0;
+    border-radius: 50%; border: 5px solid var(--bg); box-shadow: 0 6px 16px rgba(120, 30, 20, 0.45);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+    font-size: 15px; line-height: 1.15; text-align: center; white-space: normal; max-width: none;
+  }
+  #throwBtn .ic { width: 30px; height: 30px; }
+  #throwBtn:active:not(:disabled) { transform: scale(0.95); box-shadow: 0 3px 8px rgba(120, 30, 20, 0.45); }
+  #throwBtn:not(:disabled) { animation: throwpulse 1.6s ease-in-out infinite; }
+  @keyframes throwpulse { 0%, 100% { box-shadow: 0 6px 16px rgba(120, 30, 20, 0.45); } 50% { box-shadow: 0 6px 16px rgba(120, 30, 20, 0.45), 0 0 0 8px rgba(192, 57, 43, 0.22); } }
+  .dock, .chat-fab { display: none !important; }
+  .chat-toast { bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
+
+  /* ☰ 더보기 */
+  .more-sheet { width: min(460px, 100%); align-items: stretch; text-align: left; }
+  .more-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
+  .more-grid .quick-btn, .quick.sub.more-grid .quick-btn { width: 100%; min-height: 54px; justify-content: flex-start; border-radius: 14px; font-size: 16px; padding: 8px 12px; text-align: left; }
+  .more-grid .quick-btn .ic { width: 22px; height: 22px; }
+
+  /* 기록 탭: 기록판만 */
+  body:not([data-tab="record"]) .board { display: none; }
+  body[data-tab="record"] main > :not(.appbar):not(.board):not(.game-info) { display: none !important; }
+  body[data-tab="record"] .board { margin-top: 6px; padding-top: 0; border-top: none; }
+
+  /* 📺 TV 화면: 왼쪽에 멍석(늘 보임), 오른쪽에 큰 말판 */
+  body.tv .tabbar, body.tv .menu-btn, body.tv .byline, body.tv .inapp, body.tv #welcomeBar, body.tv #hostLogin, body.tv #onlineBar,
+  body.tv #meCard, body.tv #setupBox, body.tv .react-bar, body.tv .ai-row, body.tv .ai-box, body.tv .game-actions,
+  body.tv details.rules, body.tv .board, body.tv .finish-zone, body.tv .host-line { display: none !important; }
+  body.tv .throw-sheet {
+    left: 0; top: 0; bottom: 0; width: 38vw; transform: none; visibility: visible; transition: none;
+    border-radius: 0; border: none; border-right: 3px solid var(--wood-line); justify-content: center; box-shadow: none;
+  }
+  body.tv .throw-sheet::before { display: none; }
+  body.tv main { margin-left: 38vw; padding-block: 8px 16px; }
+  body.tv .game { max-width: min(100%, calc(100vh - 300px)); }
+  body.tv .hud { position: static; }
+
   @media (prefers-reduced-motion: reduce) {
     .pop, .tremble, .flash, .token.landed, .msg.warn, .chat-cheer.new, .tour-arrow, .tour-finger,
-    .award-animal, .alert-card .big-face, .ai-svg .arrow { animation: none; }
+    .award-animal, .alert-card .big-face, .ai-svg .arrow, .runner-body, .shake, #throwBtn { animation: none !important; }
+    .throw-sheet { transition: none; }
     .react-fly { animation: none; bottom: 140px; }
     .tour-hole, .tour-card { transition: none; }
     .burst { display: none; }
   }
 </style>
+
+<meta name="description" content="친구·가족 모임에서 다 같이 한 판! 링크를 누르면 바로 같이 놀 수 있어요.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="친가회 윷놀이">
+<meta property="og:title" content="🎉 친가회 윷놀이 · 같이 놀아요!">
+<meta property="og:description" content="친구·가족 모임에서 다 같이 한 판! 링크를 누르면 바로 같이 놀 수 있어요 🥢">
+<meta property="og:image" content="https://minpoet.github.io/yut/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="친가회 윷놀이 - 멍석 위 윷가락과 마가·우가·저가·구가 네 팀 동물">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#c0392b">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="친가회 윷놀이">
+
 </head>
 <body>
 
 
 <main>
-  <h1>🎉 친가회 윷놀이 🎉</h1>
-  <p class="byline">
-    <em class="maker">made by 일하선생</em>
-    <button class="link-btn contact-btn" id="contactBtn" aria-expanded="false" aria-controls="contactMail">✉️ 문의</button>
-    <span class="contact-mail" id="contactMail" hidden>
-      <span class="mail" id="contactAddr">minpoet@gmail.com</span>
-      <button class="small-btn" id="contactCopy">복사</button>
-    </span>
-  </p>
+  <!-- 맨 위: 제목 · 만든 사람 · ☰ 메뉴 -->
+  <header class="appbar">
+    <div class="brand">
+      <h1>🎉 친가회 윷놀이</h1>
+      <p class="byline">
+        <em class="maker">made by 일하선생</em>
+        <button class="link-btn contact-btn" id="contactBtn" aria-expanded="false" aria-controls="contactMail">✉️ 문의</button>
+        <span class="contact-mail" id="contactMail" hidden>
+          <span class="mail" id="contactAddr">minpoet@gmail.com</span>
+          <button class="small-btn" id="contactCopy">복사</button>
+        </span>
+      </p>
+    </div>
+    <button class="icon-btn menu-btn" id="moreBtn" aria-label="메뉴 열기" aria-haspopup="dialog" aria-controls="moreSheet">☰</button>
+  </header>
   <p class="game-info" id="gameInfo"></p>
-
-  <!-- 빠른 메뉴 -->
-  <nav class="quick" aria-label="빠른 메뉴">
-    <button class="quick-btn" id="practiceBtn">🥢 연습 던지기</button>
-    <button class="quick-btn" id="tourBtn">❓ 사용법 따라 보기</button>
-    <button class="quick-btn" id="aboutBtn">📜 윷놀이란?</button>
-    <button class="quick-btn" id="hostKeyBtn" hidden>🔑 운영자</button>
-  </nav>
-  <nav class="quick sub" aria-label="보기 설정">
-    <button class="quick-btn" id="bigBtn" aria-pressed="false">🔠 큰 글씨</button>
-    <button class="quick-btn" id="qrBtn">📱 QR 초대</button>
-    <button class="quick-btn" id="tvBtn">📺 TV 화면</button>
-    <button class="quick-btn" id="setupToggle" aria-expanded="false" hidden>⚙️ 설정 · 내 정보</button>
-    <button class="quick-btn" id="roomBtn" hidden>🚪 방 만들기 · 들어가기</button>
-  </nav>
   <!-- 🚪 지금 있는 방 -->
   <div class="room-bar" id="roomBar" hidden>
     <span id="roomText"></span>
@@ -1099,7 +1308,7 @@
     <span class="host-login-msg" id="hostKeyMsg" role="status"></span>
   </form>
   <div class="welcome" id="welcomeBar" hidden>
-    <span>👋 처음 오셨어요? 화살표를 따라 1분이면 배워요!</span>
+    <span>👋 처음이세요? 1분이면 배워요</span>
     <span class="welcome-actions">
       <button class="small-btn danger" id="welcomeGo">사용법 보기</button>
       <button class="link-btn" id="welcomeNo">괜찮아요</button>
@@ -1120,7 +1329,68 @@
     <p class="setup-note" id="meNote"></p>
   </section>
 
-  <!-- 참여자 -->
+  <!-- 차례 · 점수 한 줄 (스크롤해도 위에 붙어 있어요) -->
+  <div class="hud" id="hud">
+    <div class="hud-row">
+      <div class="hud-who" id="hudWho"></div>
+      <div class="hud-score" id="hudScore" aria-label="팀별 골인"></div>
+    </div>
+    <div class="game-status" id="gameStatus"></div>
+  </div>
+
+  <!-- 말판 -->
+  <section class="game" aria-label="말판">
+    <h2>🐾 말판</h2>
+    <div class="msg info" id="msgBox" role="status"></div>
+    <div class="react-bar" id="reactBar" hidden aria-label="응원하기"><span class="lab">응원하기</span></div>
+    <div class="ai-row" id="aiRow" hidden><button class="ai-btn" id="aiBtn">🤖 AI 추천 받기</button></div>
+    <section class="ai-box" id="aiBox" hidden aria-label="AI 추천">
+      <div class="ai-head"><b>🤖 AI 추천</b><span id="aiSims"></span></div>
+      <ol class="ai-steps" id="aiSteps"></ol>
+      <ul class="ai-why" id="aiWhy"></ul>
+      <div class="ai-actions">
+        <button class="again-btn" id="aiApply">✅ 적용하기</button>
+        <button class="small-btn" id="aiClose">닫기</button>
+      </div>
+    </section>
+    <div class="yutpan" id="yutpan">
+      <svg viewBox="0 0 600 600" id="panSvg" aria-hidden="true"></svg>
+      <div id="tokenLayer"></div>
+      <div id="hopLayer" class="hop-layer" aria-hidden="true"></div>
+      <svg viewBox="0 0 600 600" id="aiSvg" class="ai-svg" aria-hidden="true"></svg>
+    </div>
+    <div class="finish-zone" id="finishZone">🏁 골인 — 여기나 참먹이에 놓아요</div>
+    <div class="trays" id="trays"></div>
+    <div class="game-actions">
+      <button class="small-btn" id="undoBtn" hidden>↩️ 한 수 무르기</button>
+      <button class="small-btn" id="skipBtn">이번 차례 끝내기</button>
+      <button class="small-btn" id="newGameBtn">새 판 시작</button>
+    </div>
+    <details class="rules">
+      <summary>말 옮기는 방법 · 규칙 보기</summary>
+      <button class="small-btn" id="rulesFromGame" style="margin-top:8px">📖 친가회 윷놀이 규칙 전체 보기</button>
+      <ul>
+        <li>윷을 던진 다음, 자기 팀 말을 <b>끌어서</b> 놓거나, 말을 <b>한 번 누르고</b> 갈 자리를 누르세요. 다른 우리 말을 누르면 <b>바로 그 말로 바꿔 골라져요.</b> (우리 말 위에 업으려면 끌어서 놓아요)</li>
+        <li>처음 나가는 말은 아래 팀 칸(대기 중)에서 끌어오면 돼요. 출발은 오른쪽 아래 <b>참먹이(출발)</b> 자리예요. 칸마다 전통 윷판 이름(도·개·걸·윷·모, 뒷도…, 방, 안찌…)이 적혀 있어요.</li>
+        <li>윷·모가 나오면 한 번 더 던져요. 나온 것들은 <b>원하는 순서대로</b> 원하는 말에 쓸 수 있고, 다시 던지기 <b>전에 미리 옮겨 둘 수도</b> 있어요.</li>
+        <li><b>낙(落)</b>: 윷가락이 멍석 선 밖으로 떨어지면 무효! 아직 <b>옮기지 않고 모아 둔 윷·모까지 전부 무효</b>가 되고 차례가 끝나요.</li>
+        <li>모서리(<b>모</b>, <b>뒷모</b>)나 가운데(<b>방</b>)에 <b>딱 멈추면</b> 다음에 지름길로 가요.</li>
+        <li>상대 말이 있는 자리에 멈추면 <b>잡아요!</b> 잡힌 말은 처음으로 돌아가요. 도·개·걸로 잡으면 한 번 더 던지지만, <b>윷·모·빽도로 잡으면 더 던지기는 없어요.</b></li>
+        <li>우리 팀 말이 있는 자리에 멈추면 <b>업어서</b> 함께 움직여요.</li>
+        <li><b>💦 퐁당</b> (방→출발 2번째 칸, 찌모→출발 3번째 칸): 여기 멈추면 물에 빠져서 <b>처음부터 다시</b>!</li>
+        <li><b>×2</b> (뒷모→찌모 2번째 칸): 여기 멈추면 대기 말로 <b>볶아요</b>. 1개가 오면 2개, 2개가 오면 4개! 대기 말이 모자라면 하나도 못 볶아요.</li>
+        <li><b>빽도</b>는 한 칸 뒤로, <b>반드시 온 길로</b> 돌아가요. 업힌 말들은 <b>각자 자기가 온 길로</b> 돌아가요. 판 위에 말이 없으면 그냥 넘어가요.</li>
+        <li><b>도</b> 자리에서 빽도가 나오면 <b>출발</b> 자리로 가고, 다음에 아무거나 나오면 바로 골인할 수 있어요.</li>
+        <li><b>출발 자리를 넘어가야 골인</b>이에요. 출발 자리에 <b>딱 멈추면 아직 골인이 아니고</b>, 다음에 아무거나 나오면 나가요. (예: 출발까지 1칸 남았으면 개·걸·윷·모로 골인, 도는 출발에 멈춤)</li>
+        <li>말 4개가 모두 골인한 팀이 이겨요.</li>
+        <li><b>3팀 이상</b>이면 1등 팀이 나오는 순간 게임이 끝나고, 나머지는 <b>점수로 2·3·4등</b>을 정해요. (골인한 말 25점 · 판 위 말은 21 − 골인까지 남은 칸 · 대기 말 0점)</li>
+        <li>차례가 끝나면 <b>명단 순서대로 다음 사람에게 저절로</b> 넘어가요. (운영자는 다른 이름을 눌러 바꿀 수 있어요)</li>
+        <li>어디로 옮길지 고민되면 <b>🤖 AI 추천 받기</b>를 눌러 보세요. 보기만 하고 닫아도 되고, <b>적용하기</b>를 누르면 그대로 옮겨 줘요.</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- 참여자: 팀과 이름 (A안: 말판 아래) -->
   <div class="players-area">
     <div class="turn-hint" id="turnHint"></div>
     <div class="player-list" id="playerList"></div>
@@ -1149,72 +1419,6 @@
       </div>
     </details>
   </div>
-
-  <div class="mat" id="mat">
-    <span class="mat-label">멍석 · 선 밖으로 나가면 낙(落)</span>
-    <div class="sticks">
-      <div class="stick flat"></div>
-      <div class="stick flat"></div>
-      <div class="stick flat"></div>
-      <div class="stick flat back-mark"></div>
-    </div>
-  </div>
-
-  <div id="result">&nbsp;</div>
-  <div id="move">&nbsp;</div>
-  <div id="cheer"></div>
-
-  <button id="throwBtn" disabled>이름을 먼저 눌러 주세요</button>
-  <div class="react-bar" id="reactBar" hidden aria-label="응원하기"><span class="lab">응원하기</span></div>
-
-  <!-- 말판 -->
-  <section class="game" aria-label="말판">
-    <h2>🐾 말판</h2>
-    <div class="game-status" id="gameStatus"></div>
-    <div class="msg info" id="msgBox" role="status"></div>
-    <div class="ai-row" id="aiRow" hidden><button class="ai-btn" id="aiBtn">🤖 AI 추천 받기</button></div>
-    <section class="ai-box" id="aiBox" hidden aria-label="AI 추천">
-      <div class="ai-head"><b>🤖 AI 추천</b><span id="aiSims"></span></div>
-      <ol class="ai-steps" id="aiSteps"></ol>
-      <ul class="ai-why" id="aiWhy"></ul>
-      <div class="ai-actions">
-        <button class="again-btn" id="aiApply">✅ 적용하기</button>
-        <button class="small-btn" id="aiClose">닫기</button>
-      </div>
-    </section>
-    <div class="yutpan" id="yutpan">
-      <svg viewBox="0 0 600 600" id="panSvg" aria-hidden="true"></svg>
-      <div id="tokenLayer"></div>
-      <svg viewBox="0 0 600 600" id="aiSvg" class="ai-svg" aria-hidden="true"></svg>
-    </div>
-    <div class="finish-zone" id="finishZone">🏁 골인! 출발을 넘어가는 말은 여기로 (출발 자리에 놓아도 돼요)</div>
-    <div class="trays" id="trays"></div>
-    <div class="game-actions">
-      <button class="small-btn" id="undoBtn" hidden>↩️ 한 수 무르기</button>
-      <button class="small-btn" id="skipBtn">이번 차례 끝내기</button>
-      <button class="small-btn" id="newGameBtn">새 판 시작</button>
-    </div>
-    <details class="rules">
-      <summary>말 옮기는 방법 · 규칙 보기</summary>
-      <ul>
-        <li>윷을 던진 다음, 자기 팀 말을 <b>끌어서</b> 놓거나, 말을 <b>한 번 누르고</b> 갈 자리를 누르세요. 다른 우리 말을 누르면 <b>바로 그 말로 바꿔 골라져요.</b> (우리 말 위에 업으려면 끌어서 놓아요)</li>
-        <li>처음 나가는 말은 아래 팀 칸(대기 중)에서 끌어오면 돼요. 출발은 오른쪽 아래 <b>참먹이(출발)</b> 자리예요. 칸마다 전통 윷판 이름(도·개·걸·윷·모, 뒷도…, 방, 안찌…)이 적혀 있어요.</li>
-        <li>윷·모가 나오면 한 번 더 던져요. 나온 것들은 <b>원하는 순서대로</b> 원하는 말에 쓸 수 있고, 다시 던지기 <b>전에 미리 옮겨 둘 수도</b> 있어요.</li>
-        <li><b>낙(落)</b>: 윷가락이 멍석 선 밖으로 떨어지면 무효! 아직 <b>옮기지 않고 모아 둔 윷·모까지 전부 무효</b>가 되고 차례가 끝나요.</li>
-        <li>모서리(<b>모</b>, <b>뒷모</b>)나 가운데(<b>방</b>)에 <b>딱 멈추면</b> 다음에 지름길로 가요.</li>
-        <li>상대 말이 있는 자리에 멈추면 <b>잡아요!</b> 잡힌 말은 처음으로 돌아가요. 도·개·걸로 잡으면 한 번 더 던지지만, <b>윷·모·빽도로 잡으면 더 던지기는 없어요.</b></li>
-        <li>우리 팀 말이 있는 자리에 멈추면 <b>업어서</b> 함께 움직여요.</li>
-        <li><b>💦 퐁당</b> (방→출발 2번째 칸, 찌모→출발 3번째 칸): 여기 멈추면 물에 빠져서 <b>처음부터 다시</b>!</li>
-        <li><b>×2</b> (뒷모→찌모 2번째 칸): 여기 멈추면 대기 말로 <b>볶아요</b>. 1개가 오면 2개, 2개가 오면 4개! 대기 말이 모자라면 하나도 못 볶아요.</li>
-        <li><b>빽도</b>는 한 칸 뒤로, <b>반드시 온 길로</b> 돌아가요. 업힌 말들은 <b>각자 자기가 온 길로</b> 돌아가요. 판 위에 말이 없으면 그냥 넘어가요.</li>
-        <li><b>도</b> 자리에서 빽도가 나오면 <b>출발</b> 자리로 가고, 다음에 아무거나 나오면 바로 골인할 수 있어요.</li>
-        <li><b>출발 자리를 넘어가야 골인</b>이에요. 출발 자리에 <b>딱 멈추면 아직 골인이 아니고</b>, 다음에 아무거나 나오면 나가요. (예: 출발까지 1칸 남았으면 개·걸·윷·모로 골인, 도는 출발에 멈춤)</li>
-        <li>말 4개가 모두 골인한 팀이 이겨요.</li>
-        <li>차례가 끝나면 <b>명단 순서대로 다음 사람에게 저절로</b> 넘어가요. (운영자는 다른 이름을 눌러 바꿀 수 있어요)</li>
-        <li>어디로 옮길지 고민되면 <b>🤖 AI 추천 받기</b>를 눌러 보세요. 보기만 하고 닫아도 되고, <b>적용하기</b>를 누르면 그대로 옮겨 줘요.</li>
-      </ul>
-    </details>
-  </section>
 
   <!-- 기록판 -->
   <section class="board" aria-label="기록판">
@@ -1260,7 +1464,58 @@
 </main>
 <div id="tip" hidden></div>
 
-<!-- 화면 아래 던지기 버튼 (위의 던지기 버튼이 안 보일 때) -->
+<!-- 🥢 아래에서 올라오는 멍석 (던질 때만 쑥 올라와요) -->
+<div class="throw-sheet" id="throwSheet" aria-live="polite">
+  <div class="throw-who" id="throwWho"></div>
+  <div class="mat" id="mat">
+    <span class="mat-label">멍석 · 선 밖으로 나가면 낙(落)</span>
+    <div class="sticks">
+      <div class="stick flat"></div>
+      <div class="stick flat"></div>
+      <div class="stick flat"></div>
+      <div class="stick flat back-mark"></div>
+    </div>
+  </div>
+  <div id="result">&nbsp;</div>
+  <div id="move">&nbsp;</div>
+  <div id="cheer"></div>
+</div>
+
+<!-- 맨 아래: 탭 + 가운데 큰 던지기 버튼 -->
+<nav class="tabbar" id="tabbar" aria-label="화면 바꾸기">
+  <button class="tab on" id="tabPlay" aria-current="page">놀이</button>
+  <button class="tab" id="tabRecord">기록</button>
+  <button id="throwBtn" disabled>이름 먼저</button>
+  <button class="tab off" id="tabChat">채팅<span class="tab-badge" id="tabChatBadge" hidden></span></button>
+  <button class="tab" id="tabMore" aria-haspopup="dialog" aria-controls="moreSheet">더보기</button>
+</nav>
+
+<!-- ☰ 더보기 메뉴 -->
+<div class="sheet-back" id="moreSheet" hidden>
+  <section class="sheet more-sheet" role="dialog" aria-modal="true" aria-labelledby="moreTitle">
+    <div class="sheet-head">
+      <h3 id="moreTitle">더보기</h3>
+      <button class="chat-close" id="moreClose" aria-label="메뉴 닫기">×</button>
+    </div>
+    <nav class="quick more-grid" aria-label="놀이 메뉴">
+      <button class="quick-btn" id="practiceBtn">🥢 연습 던지기</button>
+      <button class="quick-btn" id="tourBtn">❓ 사용법 따라 보기</button>
+      <button class="quick-btn" id="rulesBtn">📖 윷놀이 규칙</button>
+      <button class="quick-btn" id="aboutBtn">📜 윷놀이란?</button>
+    </nav>
+    <nav class="quick sub more-grid" aria-label="설정 · 보기">
+      <button class="quick-btn" id="setupToggle" aria-expanded="false" hidden>⚙️ 설정 · 내 정보</button>
+      <button class="quick-btn" id="hostKeyBtn" hidden>🔑 운영자</button>
+      <button class="quick-btn" id="bigBtn" aria-pressed="false">🔠 큰 글씨</button>
+      <button class="quick-btn" id="qrBtn">📱 QR 초대</button>
+      <button class="quick-btn" id="tvBtn">📺 TV 화면</button>
+      <button class="quick-btn" id="roomBtn" hidden>🚪 방 만들기 · 들어가기</button>
+      <button class="quick-btn" id="installBtn" hidden>📲 홈 화면에 추가</button>
+    </nav>
+  </section>
+</div>
+
+<!-- 화면 아래 던지기 버튼 (A안에서는 아래 탭의 던지기 버튼이 늘 보여서 쓰지 않아요) -->
 <div class="dock" id="dock" hidden><button id="dockBtn"></button></div>
 <!-- 인터넷 끊김 -->
 <div class="net-bar" id="netBar" role="status" hidden></div>
@@ -1287,6 +1542,11 @@
     <div class="award-animal" id="awardAnimal"></div>
     <div class="award-team" id="awardTitle"></div>
     <div class="award-members" id="awardMembers"></div>
+    <div class="award-rank" id="awardRank" hidden>
+      <h3 style="margin:8px 0 4px">🏅 최종 순위</h3>
+      <div id="awardRankBox"></div>
+      <p class="setup-note">2등부터는 점수로 정해요: 골인한 말 25점 · 판 위 말 (21 − 골인까지 남은 칸) · 대기 말 0점</p>
+    </div>
     <h3 style="margin:8px 0 0">🎖️ 오늘의 상</h3>
     <div class="award-list" id="awardList"></div>
     <p class="setup-note">📸 단체 사진 찍기 좋은 화면이에요! 화면을 캡처해 두세요.<br>상은 지금까지 쌓인 기록판 기록으로 뽑아요.</p>
@@ -1338,6 +1598,20 @@
   </section>
 </div>
 
+<!-- 📲 홈 화면에 추가 (아이폰은 직접 해야 해서 방법을 알려 줘요) -->
+<div class="sheet-back" id="installSheet" hidden>
+  <section class="sheet alert-card" role="dialog" aria-modal="true" aria-labelledby="installTitle">
+    <div class="alert-title" id="installTitle" style="font-size:28px">📲 홈 화면에 추가</div>
+    <ol style="text-align:left;line-height:1.8;margin:0;padding-left:1.3em">
+      <li>사파리 아래쪽 <b>공유 버튼</b>(네모에 위 화살표 ⬆️)을 눌러요.</li>
+      <li>아래로 내려서 <b>'홈 화면에 추가'</b>를 눌러요.</li>
+      <li>오른쪽 위 <b>'추가'</b>를 누르면 끝!</li>
+    </ol>
+    <p class="setup-note" style="font-size:15px">홈 화면의 윷가락 아이콘을 누르면 주소창 없이 앱처럼 열려요.</p>
+    <button class="again-btn" id="installOk">알겠어요</button>
+  </section>
+</div>
+
 <!-- 📺 TV 화면 시작 (소리를 켜려면 한 번 눌러야 해요) -->
 <div class="sheet-back" id="tvStart" hidden>
   <section class="sheet alert-card" role="dialog" aria-modal="true" aria-labelledby="tvStartTitle">
@@ -1345,6 +1619,168 @@
     <p class="setup-note" style="font-size:16px">말판과 윷가락만 크게 보여 줘요. 던지기는 각자 휴대폰으로 해요.</p>
     <button class="again-btn" id="tvStartGo">🔊 소리 켜고 시작</button>
     <button class="link-btn" id="tvStartNo">보통 화면으로 보기</button>
+  </section>
+</div>
+
+<!-- 📖 친가회 윷놀이 규칙 (전체 정리) -->
+<div class="sheet-back" id="rulesSheet" hidden>
+  <section class="sheet about-sheet rules-sheet" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+    <div class="sheet-head">
+      <h3 id="rulesTitle">📖 친가회 윷놀이 규칙</h3>
+      <button class="chat-close" id="rulesClose" aria-label="규칙 닫기">×</button>
+    </div>
+
+    <div class="rule-summary">
+      <b>⚡ 30초 요약</b>
+      <ol>
+        <li>윷을 던져서 나온 만큼 우리 팀 말을 옮겨요.</li>
+        <li>말 4개가 판을 한 바퀴 돌아 <b>먼저 다 골인한 팀</b>이 이겨요.</li>
+        <li><b>윷·모</b>가 나오거나 <b>도·개·걸로 상대 말을 잡으면</b> 한 번 더 던져요.</li>
+        <li>모서리(모·뒷모)나 가운데(방)에 <b>딱 멈추면 지름길</b>!</li>
+        <li>친가회만의 재미: <b>💦 퐁당</b>, <b>×2 볶기</b>, <b>낙</b>!</li>
+      </ol>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">👥</div>
+      <div>
+        <h4>① 팀과 순서</h4>
+        <ul>
+          <li>팀은 2~4팀: <b>마가(馬加) 🐴 · 우가(牛加) 🐮 · 저가(猪加) 🐷 · 구가(狗加) 🐶</b></li>
+          <li>팀마다 <b>말 4개</b>로 시작해요. 처음엔 모두 '대기' 칸에 있어요.</li>
+          <li>던지는 순서는 운영자가 정한 <b>명단 순서</b>예요. 차례가 끝나면 <b>다음 사람에게 저절로</b> 넘어가요.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">🥢</div>
+      <div>
+        <h4>② 던지기: 결과 읽는 법</h4>
+        <p>윷가락 4개 중 <b>배(밝은 평평한 면)</b>가 위로 몇 개 나왔는지 세요.</p>
+        <div class="rule-results" id="ruleResults"></div>
+        <ul>
+          <li><b>윷·모</b>가 나오면 <b>한 번 더</b> 던져요. (계속 나오면 계속!)</li>
+          <li><b>빽도</b>는 ●표시가 있는 윷가락 <b>하나만</b> 배일 때예요. 뒤로 1칸!</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">😱</div>
+      <div>
+        <h4>③ 낙(落): 멍석 밖으로!</h4>
+        <ul>
+          <li>윷가락이 <b>통째로 멍석 선 밖</b>으로 떨어지면 <b>낙</b>이에요. 선에 <b>걸치기만 하면 낙이 아니에요.</b></li>
+          <li>낙이 나오면 그 던지기는 무효! <b>아직 안 옮기고 모아 둔 결과(윷·모 등)까지 전부 무효</b>가 되고 차례가 끝나요.</li>
+          <li>낙이 나오는 정도는 운영자가 정해요: 안 나옴 · 가끔(3%) · 좀 더(6%) · 많이(10%)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">👆</div>
+      <div>
+        <h4>④ 말 옮기기</h4>
+        <ul>
+          <li>말을 <b>끌어서 놓거나</b>, 말을 <b>톡</b> → 갈 자리를 <b>톡</b> 눌러요.</li>
+          <li>다른 우리 말을 누르면 <b>바로 그 말로 바꿔 골라져요.</b></li>
+          <li>나온 결과들은 <b>원하는 순서대로</b>, 원하는 말에 써요. (윷 다음 개가 나와도 개부터 써도 OK)</li>
+          <li>윷·모가 나와서 다시 던지기 <b>전에 미리 옮겨 둘 수 있어요.</b> (낙이 나오면 안 옮긴 건 무효니까 미리 옮기면 안전!)</li>
+          <li>처음 나가는 말은 대기 칸에서 끌어와요. 출발은 오른쪽 아래 <b>참먹이</b>, 시계 반대 방향으로 돌아요.</li>
+          <li>잘못 놓으면 "삐~" 소리와 함께 혼나요 😆 (할머니가 다 보고 계십니다 👵)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">⭐</div>
+      <div>
+        <h4>⑤ 지름길</h4>
+        <ul>
+          <li><b>모 · 뒷모 · 방</b>에 <b>딱 멈추면</b>, 다음에 대각선 지름길로 가요. 지나가기만 하면 원래 길로 가요.</li>
+          <li><b>모</b>에서 지름길로 가다가 방을 <b>지나가면</b> → 찌모 쪽으로 계속 가요.</li>
+          <li><b>뒷모</b>에서 지름길로 가다가 방을 <b>지나가면</b> → 참먹이(골인) 쪽으로 가요.</li>
+          <li><b>방에 딱 멈추면</b> → 다음에는 <b>참먹이(골인) 쪽으로만</b> 가요. (찌모 쪽으로는 못 가요)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">💥</div>
+      <div>
+        <h4>⑥ 잡기 · 업기</h4>
+        <ul>
+          <li><b>상대 말</b>이 있는 칸에 멈추면 <b>잡아요!</b> 잡힌 말(업힌 말 전부)은 대기 칸으로 돌아가요.</li>
+          <li><b>도·개·걸로 잡으면 한 번 더</b> 던져요. <b>윷·모·빽도로 잡으면 더 던지기는 없어요.</b></li>
+          <li><b>우리 말</b>이 있는 칸에 멈추면 <b>업어서</b> 함께 움직여요. 우리 말 위에 업으려면 <b>끌어서</b> 놓아요.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">🔙</div>
+      <div>
+        <h4>⑦ 빽도</h4>
+        <ul>
+          <li>한 칸 뒤로, <b>반드시 온 길로</b> 돌아가요.</li>
+          <li>업힌 말들은 <b>각자 자기가 온 길로</b> 돌아가서 갈라질 수도 있어요.</li>
+          <li><b>대기 말은 빽도로 나갈 수 없어요.</b> 판 위에 말이 없고 다른 결과도 없으면 빽도는 그냥 버려요.</li>
+          <li><b>도</b> 칸에서 빽도 → <b>참먹이</b>에 서요. 다음에 아무거나 나오면 바로 골인!</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">💦</div>
+      <div>
+        <h4>⑧ 친가회 특별 칸</h4>
+        <ul>
+          <li><b>💦 퐁당</b>: <b>안찌</b>(방→참먹이 2번째)와 <b>날걸</b>(찌모→참먹이 3번째). 여기 <b>멈추면</b> 물에 빠져서 <b>처음부터</b> 다시! 지나가는 건 괜찮아요.</li>
+          <li><b>×2 볶기</b>: <b>찌개</b>(뒷모→찌모 2번째) 칸. 뒷모를 지나야만 갈 수 있어요. 여기 <b>멈추면</b> 온 말 수만큼 대기 말이 붙어요. <b>1개 → 2개, 2개 → 4개!</b> 대기 말이 모자라면 하나도 못 볶아요.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">🏁</div>
+      <div>
+        <h4>⑨ 골인과 승리</h4>
+        <ul>
+          <li><b>참먹이를 지나가야 골인</b>이에요. 참먹이에 <b>딱 멈추면 아직 골인이 아니고</b>, 다음에 아무거나 나오면 나가요.</li>
+          <li>예) 참먹이까지 1칸 남았을 때: 도 → 참먹이에 멈춤 / 개·걸·윷·모 → 골인</li>
+          <li>골인할 수 있는 결과가 여러 개면 <b>가장 작은 것</b>을 써서 큰 걸 아껴요.</li>
+          <li>골인할 말은 '🏁 골인' 칸이나 <b>참먹이 자리</b>에 놓으면 돼요.</li>
+          <li><b>말 4개가 모두 골인한 팀이 승리!</b> 🏆 시상식이 열려요.</li>
+          <li><b>3팀 이상</b>이면 1등 팀이 나오는 순간 <b>게임 끝!</b> 나머지 팀은 그때 말 위치로 <b>점수</b>를 매겨 2·3·4등을 정해요.
+            <ul>
+              <li>🏁 골인한 말: <b>25점</b></li>
+              <li>🐾 판 위의 말: <b>21 − 골인까지 남은 칸</b> (지름길까지 생각한 가장 빠른 길로 세요) — 예) 참먹이 앞 20점 · 방 17점 · 모 14점 · 도 칸 10점</li>
+              <li>⏳ 대기 말: <b>0점</b></li>
+              <li>점수가 같으면 <b>골인한 말이 많은 팀</b>이 앞, 그것도 같으면 <b>공동 순위</b></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-sec">
+      <div class="about-art" aria-hidden="true">🛠️</div>
+      <div>
+        <h4>⑩ 진행 도우미</h4>
+        <ul>
+          <li><b>이번 차례 끝내기</b>: 옮길 수 없을 때 차례를 넘겨요.</li>
+          <li><b>↩️ 한 수 무르기</b>: 실수했을 때 <b>운영자</b>가 한 단계씩 되돌려요.</li>
+          <li><b>🤖 AI 추천</b>: 어디로 옮길지 고민되면 눌러 보세요. 보기만 해도 되고, '적용하기'를 누르면 대신 옮겨 줘요.</li>
+          <li>던진 기록은 모두 <b>기록판</b>에 남아요. 모왕 · 윷왕 · 빽도왕을 겨뤄 보세요! 👑</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-end">
+      <button class="again-btn" id="rulesPractice">🥢 연습 던지러 가기</button>
+      <button class="quick-btn" id="rulesDone">닫기</button>
+    </div>
   </section>
 </div>
 
@@ -1542,7 +1978,7 @@
 </div>
 
 <!-- 채팅 (온라인일 때만 보여요) -->
-<button class="chat-fab" id="chatFab" aria-label="채팅 열기" hidden>💬<span class="chat-badge" id="chatBadge" hidden></span></button>
+<button class="chat-fab" id="chatFab" aria-label="채팅 열기" hidden><span class="chat-badge" id="chatBadge" hidden></span></button>
 <div class="chat-toast" id="chatToast" hidden></div>
 <aside class="chat-panel" id="chatPanel" aria-label="채팅" hidden>
   <div class="chat-head">
@@ -2025,7 +2461,7 @@
         ? "아래 '게임 설정 (운영자)'에서 참가 신청한 사람들의 팀을 정해 주세요 👇"
         : "운영자가 팀을 정하면 여기에 참여자가 나와요 ⏳";
     } else if (state.current === null) {
-      hint.textContent = "누구 차례인가요? 자기 이름을 눌러 주세요 👇";
+      hint.textContent = "👇 내 이름을 눌러 시작해요";
     } else {
       const p = state.players[state.current];
       hint.innerHTML = "";
@@ -2038,19 +2474,54 @@
   }
   function updateThrowBtn() {
     const g = G();
-    let text, off = true;
-    if (throwBtn.dataset.busy) text = "던지는 중…";
+    let text, short, off = true;   // text = 자세한 안내 (위 차례 줄), short = 둥근 버튼 글자
+    if (throwBtn.dataset.busy) { text = "던지는 중…"; short = "던지는 중"; }
     else if (g.winner !== null) {
-      if (canRestart()) { text = "🔄 새로 하기"; off = false; }
-      else text = "게임 끝! 운영자가 새 판을 열어요 ⏳";
+      if (canRestart()) { text = "🔄 새로 하기"; short = "새로 하기"; off = false; }
+      else { text = "게임 끝! 운영자가 새 판을 열어요 ⏳"; short = "게임 끝"; }
     }
-    else if (state.current === null) text = "이름을 먼저 눌러 주세요";
-    else if (!myTurn()) text = state.players[state.current].name + " 님 차례예요 👀";
-    else if (g.owed <= 0) text = "말을 옮기세요 👇";
-    else { text = state.players[state.current].name + " 던지기!"; off = false; }
-    throwBtn.textContent = text;
+    else if (state.current === null) { text = "말판 아래 팀에서 내 이름을 눌러 시작해요 👇"; short = "이름 먼저"; }
+    else if (!myTurn()) { text = state.players[state.current].name + " 님 차례예요 👀"; short = "구경 중"; }
+    else if (g.owed <= 0) { text = "말을 옮기세요 👇"; short = "옮기기"; }
+    else { text = "던지기 버튼을 누르세요!"; short = state.open ? "한 번 더!" : "던지기"; off = false; }
+    labelBtn(throwBtn, "sticks", short);
+    throwBtn.setAttribute("aria-label", short === text ? text : short + " · " + text);
     throwBtn.disabled = off;
+    renderHUD(text);
     renderDock();
+  }
+  // 위 차례 줄: 누구 차례 (사진 · 이름 · 팀 · 할 일) + 팀별 골인 수
+  function renderHUD(hint) {
+    const g = G(), who = $("hudWho");
+    who.innerHTML = "";
+    const txt = document.createElement("div");
+    txt.className = "txt";
+    const nm = document.createElement("span");
+    nm.className = "nm";
+    const sm = document.createElement("small");
+    if (g.winner !== null) {
+      who.appendChild(teamLogo(g.winner, 34));
+      nm.textContent = teamName(g.winner) + " 승리! 🎉";
+      sm.textContent = rankingLine(g) || hint;
+    } else if (state.current !== null && state.players[state.current]) {
+      const p = state.players[state.current];
+      who.appendChild(avatar(p, 36));
+      nm.textContent = p.name + " 님 차례";
+      sm.textContent = teamName(p.team) + " · " + hint;
+    } else {
+      nm.textContent = "누구 차례인가요?";
+      sm.textContent = hint;
+    }
+    txt.append(nm, sm);
+    who.appendChild(txt);
+    const sc = $("hudScore");
+    sc.innerHTML = "";
+    for (let t = 0; t < g.teams; t++) {
+      const b = document.createElement("span");
+      b.title = teamName(t) + " 골인";
+      b.append(teamLogo(t, 20), g.pieces[t].filter(pc => pc.n === "FIN").length + "/4");
+      sc.appendChild(b);
+    }
   }
 
   function renderSetup() {
@@ -2252,24 +2723,40 @@
   }
   // 던질 때: 휘이익~ 바람 소리
   function playWhoosh() { noise(0, 0.7, 400, 2200, 0.5, 1.2); }
-  // 떨어질 때: 딱 따닥 딱! 나무 부딪히는 소리
+  // 나무 한 번 부딪힘: 나무 특유의 울림(기본음 + 2.76배 + 5.4배)이 아주 짧게 + '딱' 하는 마찰음
+  function woodHit(t, f, vol) {
+    [1, 2.76, 5.4].forEach((m, i) => tone(f * m, t, 0.13 / (i + 1), "sine", vol / (i + 1.6)));
+    noise(t, 0.025, 4200, 2600, vol * 1.3, 3);
+  }
+  // 떨어질 때: 딱 따닥 딱! 윷가락 네 개가 멍석에 부딪히는 소리
   function playClack() {
-    [0, 0.07, 0.13, 0.22].forEach(function (s) {
-      noise(s, 0.06, 1800 + Math.random() * 900, 900, 0.9, 6);
-      tone(700 + Math.random() * 300, s, 0.05, "triangle", 0.15);
-    });
+    [0, 0.06, 0.11, 0.2, 0.27].forEach(s => woodHit(s, 850 + Math.random() * 500, 0.35));
   }
-  // 윷: 띠링띠링~ 올라가는 맑은 소리
+  // 꽹과리: 쇳소리 (서로 안 어울리는 높이의 소리를 겹쳐요). open = '갠'(울림), 아니면 '지'(막음)
+  function kkwaeng(t, open, vol, up) {
+    const f = 1180 * up;
+    [1, 1.48, 2.11, 2.63, 3.42].forEach((m, i) => tone(f * m, t, open ? 0.5 - i * 0.07 : 0.07, i % 2 ? "square" : "sine", vol / (i + 2)));
+    noise(t, open ? 0.3 : 0.05, 6500, 3500, vol * 0.5, 1.5);
+  }
+  // 장구: 덩(양손 함께, 낮고 둥근 소리) · 덕(채편, 딱 하는 소리) · 쿵(북편)
+  function janggu(t, kind, vol) {
+    if (kind === "덕") { noise(t, 0.06, 2800, 1900, vol, 3); tone(820, t, 0.05, "triangle", vol * 0.35); return; }
+    tone(kind === "쿵" ? 95 : 125, t, 0.42, "sine", vol, kind === "쿵" ? 55 : 62);
+    noise(t, 0.16, 320, 140, vol * 0.7, 1);
+    if (kind === "덩") noise(t, 0.05, 2600, 1800, vol * 0.5, 2);
+  }
+  // 윷: 덩 덕 + 꽹과리 갠 지 갠! (연속일수록 조금씩 높아져요)
   function playYut(level) {
-    const up = 1 + (level - 1) * 0.05;   // 연속일수록 조금씩 높아져요
-    [523, 659, 784, 1047].forEach((f, i) => tone(f * up, 0.3 + i * 0.1, 0.4, "triangle", 0.3));
+    const up = 1 + (level - 1) * 0.04;
+    janggu(0.25, "덩", 0.5); janggu(0.45, "덕", 0.45); janggu(0.6, "덩", 0.5);
+    kkwaeng(0.25, true, 0.32, up); kkwaeng(0.45, false, 0.3, up); kkwaeng(0.6, true, 0.36, up);
   }
-  // 모: 빰빰빰 빠~밤! 나팔 소리
+  // 모: 덩 덕덕 쿵 덩! + 꽹과리 갠 지갠지 갠~ (신명나게)
   function playMo(level) {
-    const up = 1 + (level - 1) * 0.05;
-    [[392, 0], [392, 0.15], [392, 0.3], [523, 0.45]].forEach(([f, s], i) =>
-      tone(f * up, 0.3 + s, i === 3 ? 0.9 : 0.14, "sawtooth", 0.18));
-    [523, 659, 784].forEach(f => tone(f * up, 0.75, 0.9, "square", 0.06));
+    const up = 1 + (level - 1) * 0.04;
+    [[0.25, "덩"], [0.41, "덕"], [0.53, "덕"], [0.66, "쿵"], [0.86, "덩"]].forEach(([t, k]) => janggu(t, k, 0.55));
+    [[0.25, true], [0.41, false], [0.49, true], [0.57, false], [0.66, true], [0.86, true]].forEach(([t, o]) => kkwaeng(t, o, 0.34, up));
+    kkwaeng(1.02, true, 0.42, up * 1.12);
   }
   // 잘못 옮겼을 때: 삐빅! 경고음
   function buzz() {
@@ -2460,6 +2947,7 @@
         el.style.left = (NODES[node][0] / 6) + "%";
         el.style.top = (NODES[node][1] / 6) + "%";
         if (landedAt === node) el.classList.add("landed");
+        if ((hopHide[team + ":" + node] || 0) > Date.now()) el.style.opacity = "0";   // 뛰어오는 중에는 도착 자리 말을 숨겨요
         layer.appendChild(el);
       });
     });
@@ -2471,6 +2959,7 @@
       const t1 = document.createElement("div"); t1.textContent = `${teamName(g.winner)} 승리!`;
       const t2 = document.createElement("div"); t2.style.fontSize = "16px"; t2.style.fontFamily = "var(--font-body)"; t2.textContent = names;
       w.append(t1, t2);
+      if (g.teams >= 3) { w.appendChild(rankingTable(g)); w.classList.add("with-rank"); }   // 3팀 이상: 2·3·4등까지
       if (canRestart()) {
         const again = document.createElement("button");
         again.id = "againBtn";
@@ -2524,15 +3013,7 @@
     // 상태 줄: 누구 차례, 남은 이동
     const st = $("gameStatus");
     st.innerHTML = "";
-    if (g.winner !== null) {
-      st.textContent = `🎉 ${teamName(g.winner)} 승리! '🔄 새로 하기'를 누르면 바로 다음 판이에요`;
-    } else if (state.current === null) {
-      st.textContent = "이름을 누르고 윷을 던지세요";
-    } else {
-      const team = currentTeam();
-      const label = document.createElement("span");
-      label.textContent = `${teamName(team)} · ${state.players[state.current].name}`;
-      st.appendChild(label);
+    if (g.winner === null && state.current !== null) {
       if (g.pending.length) {
         const s = document.createElement("span");
         s.textContent = g.owed <= 0 ? "→ 옮길 것:" : "→ 모아 둔 것 (지금 옮겨도 돼요):";
@@ -2682,13 +3163,223 @@
     return out;
   }
 
+  // =====================================================================
+  // ---------- 🐾 말이 한 칸씩 콩콩 뛰어가기 ----------
+  // =====================================================================
+  // 결과 r로 갈 때 밟는 칸들 (마지막이 "FIN"이면 골인)
+  function stepPath(node, trail, r) {
+    if (r === "빽도") { const d = destination(node, trail, r); return d ? [d.dest] : []; }
+    const out = [];
+    let cur = node, prev = trail.length >= 2 ? trail[trail.length - 2] : null;
+    for (let s = 0; s < STEPS[r]; s++) {
+      const nx = nextNode(cur, prev, s === 0);
+      out.push(nx);
+      if (nx === "FIN") break;
+      prev = cur;
+      cur = nx;
+    }
+    return out;
+  }
+  // 함께 움직이는 말들을 길별로 묶어요 (빽도면 업힌 말이 각자 다른 길로 갈 수 있어요)
+  function hopsFor(g, team, node, r) {
+    let moving = g.pieces[team].filter(pc => pc.n === node);
+    if (node === "S") moving = moving.slice(0, 1);
+    const byPath = {};
+    moving.forEach(function (pc) {
+      const path = stepPath(pc.n, pc.t, r);
+      if (!path.length) return;
+      const k = path.join(">");
+      byPath[k] = byPath[k] || { team, from: node, path, n: 0, caught: [], pond: false };
+      byPath[k].n++;
+    });
+    return Object.values(byPath);
+  }
+  // 도착한 곳에서 생긴 일 (잡기 · 퐁당)을 붙여 둬요
+  function attachHopEvents(hops, ev) {
+    hops.forEach(function (h) {
+      const last = h.path[h.path.length - 1];
+      const spot = ev.spots.find(s => s.dest === last);
+      if (!spot) return;
+      h.caught = spot.caught.map(([t, n]) => [t, n]);
+      h.pond = !!spot.pond;
+    });
+  }
+  // 다른 사람이 보낸 길 정보는 그대로 믿지 않고 검사해요
+  function cleanHops(list) {
+    if (!Array.isArray(list)) return [];
+    return list.slice(0, 8).filter(function (h) {
+      return h && Number.isInteger(h.team) && h.team >= 0 && h.team < 4 && (h.from === "S" || isNode(h.from)) &&
+        Array.isArray(h.path) && h.path.length >= 1 && h.path.length <= 6 && h.path.every((n, i) => isNode(n) || (n === "FIN" && i === h.path.length - 1)) &&
+        Number.isInteger(h.n) && h.n >= 1 && h.n <= 8;
+    }).map(h => ({
+      team: h.team, from: h.from, path: h.path.slice(), n: h.n, pond: h.pond === true,
+      caught: Array.isArray(h.caught) ? h.caught.filter(c => Array.isArray(c) && Number.isInteger(c[0]) && c[0] >= 0 && c[0] < 4 && Number.isInteger(c[1])).slice(0, 4) : []
+    }));
+  }
+  const HOP_MS = 260;          // 한 칸 뛰는 시간
+  const hopHide = {};          // "팀:자리" → 이 시각까지 진짜 말을 숨겨요 (뛰어오는 말과 겹치지 않게)
+  let hopBusyUntil = 0;
+  const pct = n => ({ left: NODES[n][0] / 6 + "%", top: NODES[n][1] / 6 + "%" });
+  function ghostToken(team, count) {
+    const el = document.createElement("div");
+    el.className = "token hop-ghost";
+    el.style.setProperty("--tc", `var(${ANIMALS[team].color})`);
+    el.innerHTML = ANIMALS[team].svg;
+    if (count > 1) {
+      const c = document.createElement("span");
+      c.className = "count";
+      c.textContent = "×" + count;
+      el.appendChild(c);
+    }
+    return el;
+  }
+  // 콩콩 애니메이션을 시작하고, 끝날 때까지 걸리는 시간(ms)을 돌려줘요
+  function animateHops(hops) {
+    if (!hops || !hops.length || reduceMotion) return 0;
+    const layer = $("hopLayer");
+    let longest = 0;
+    hops.forEach(function (h) {
+      const goal = h.path[h.path.length - 1] === "FIN";
+      const stops = h.path.filter(n => n !== "FIN");
+      const startAt = h.from === "S" ? "O0" : h.from;
+      const total = HOP_MS * h.path.length;
+      longest = Math.max(longest, total);
+      const last = stops.length ? stops[stops.length - 1] : startAt;
+      if (!goal) hopHide[h.team + ":" + last] = Date.now() + total + 60;
+      // 잡힐 상대 말: 뛰어온 말이 닿을 때까지 그 자리에 서 있다가 튕겨 나가요
+      (h.caught || []).forEach(function ([t, n]) {
+        const victim = ghostToken(t, n);
+        Object.assign(victim.style, pct(last));
+        layer.appendChild(victim);
+        victim.animate([
+          { transform: "translate(-50%, -50%) rotate(0deg) scale(1)", opacity: 1, offset: 0 },
+          { transform: "translate(-50%, -50%) rotate(0deg) scale(1)", opacity: 1, offset: 0.55 },
+          { transform: "translate(-50%, -260%) rotate(-200deg) scale(1.15)", opacity: 1, offset: 0.75 },
+          { transform: "translate(-50%, 320%) rotate(-540deg) scale(0.6)", opacity: 0, offset: 1 }
+        ], { duration: total + 700, easing: "ease-in", fill: "forwards" });
+        setTimeout(() => victim.remove(), total + 800);
+      });
+      const el = ghostToken(h.team, h.n);
+      Object.assign(el.style, pct(startAt));
+      layer.appendChild(el);
+      const frames = [Object.assign({ transform: `translate(-50%, -50%) scale(${h.from === "S" ? 0.3 : 1})`, offset: 0 }, pct(startAt))];
+      let prev = startAt;
+      h.path.forEach(function (n, i) {
+        const at = n === "FIN" ? "O0" : n;
+        const a = NODES[prev], b = NODES[at];
+        const mid = { left: (a[0] + b[0]) / 12 + "%", top: (a[1] + b[1]) / 12 + "%" };
+        const o0 = i / h.path.length, o1 = (i + 1) / h.path.length;
+        frames.push(Object.assign({ transform: "translate(-50%, -78%) scale(1.18)", offset: o0 + (o1 - o0) * 0.5 }, mid));
+        if (n === "FIN") frames.push(Object.assign({ transform: "translate(-20%, -160%) scale(0.5)", opacity: 0, offset: o1 }, pct("O0")));
+        else frames.push(Object.assign({ transform: "translate(-50%, -50%) scale(0.92)", offset: o1 }, pct(at)));
+        prev = at;
+        // 한 칸 닿을 때마다 '톡'
+        setTimeout(function () { if (audio) tone(700 + i * 90, 0, 0.07, "triangle", 0.22); }, HOP_MS * (i + 1) - 30);
+      });
+      el.animate(frames, { duration: total, easing: "linear", fill: "forwards" });
+      setTimeout(function () {
+        if (h.pond) {   // 💦 퐁당: 도착하자마자 물속으로 쏙
+          el.animate([{ transform: "translate(-50%, -50%) scale(1)", opacity: 1 }, { transform: "translate(-50%, -20%) scale(0.1)", opacity: 0 }], { duration: 450, fill: "forwards" });
+          const sp = document.createElement("div");
+          sp.className = "hop-splash";
+          sp.textContent = "💦";
+          Object.assign(sp.style, pct(last));
+          layer.appendChild(sp);
+          setTimeout(() => sp.remove(), 900);
+          setTimeout(() => el.remove(), 460);
+        } else el.remove();
+        delete hopHide[h.team + ":" + last];
+        document.querySelectorAll(`#tokenLayer .token[data-team="${h.team}"][data-node="${last}"]`).forEach(function (t) {
+          t.style.opacity = "";
+          t.classList.remove("landed");
+          void t.offsetWidth;
+          t.classList.add("landed");
+        });
+      }, total);
+    });
+    hopBusyUntil = Date.now() + longest;
+    return longest;
+  }
+
+  // =====================================================================
+  // ---------- 🏅 3팀 이상: 1등이 나오면 끝, 2·3·4등은 점수로 ----------
+  // =====================================================================
+  // 골인까지 가장 빠른 길로 남은 칸 수 (가는 길에 모·뒷모·방에 멈춰서 지름길을 탈 수 있는 것까지 셈)
+  function minStepsLeft(pc) {
+    if (pc.n === "FIN") return 0;
+    if (pc.n === "S") return null;   // 대기 말은 따로 (0점)
+    const start = { n: pc.n, prev: pc.t.length >= 2 ? pc.t[pc.t.length - 2] : null, first: true, d: 0 };
+    const queue = [start], seen = new Set();
+    while (queue.length) {
+      const s = queue.shift();
+      const key = s.n + "|" + s.prev + "|" + s.first;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      // 지금 칸에 그냥 지나가거나, (윷 결과에 따라) 딱 멈춰서 지름길로 갈 수도 있어요
+      const nexts = s.first ? [nextNode(s.n, s.prev, true)] : [nextNode(s.n, s.prev, false), nextNode(s.n, s.prev, true)];
+      for (const nx of new Set(nexts)) {
+        if (nx === "FIN") return s.d + 1;
+        queue.push({ n: nx, prev: s.n, first: false, d: s.d + 1 });
+      }
+    }
+    return 21;
+  }
+  const GOAL_POINTS = 25;   // 골인한 말 1개
+  // 팀 점수: 골인 25점 + 판 위 말은 (21 − 남은 칸) + 대기 말 0점
+  function teamScore(g, t) {
+    let score = 0, fin = 0, board = 0;
+    g.pieces[t].forEach(function (pc) {
+      if (pc.n === "FIN") { score += GOAL_POINTS; fin++; }
+      else if (pc.n !== "S") { score += Math.max(0, 21 - minStepsLeft(pc)); board++; }
+    });
+    return { team: t, score, fin, board, wait: 4 - fin - board };
+  }
+  // 최종 순위: 다 골인한 팀이 1등, 나머지는 점수 → 골인 수 순서 (둘 다 같으면 같은 등수)
+  function finalRanking(g) {
+    const rows = [];
+    for (let t = 0; t < g.teams; t++) rows.push(teamScore(g, t));
+    rows.sort((a, b) => (b.team === g.winner) - (a.team === g.winner) || b.score - a.score || b.fin - a.fin);
+    let rank = 0;
+    rows.forEach(function (r, i) {
+      const prev = rows[i - 1];
+      if (!prev || r.team === g.winner || prev.team === g.winner || prev.score !== r.score || prev.fin !== r.fin) rank = i + 1;
+      r.rank = rank;
+    });
+    return rows;
+  }
+  const RANK_MEDAL = n => n === 1 ? "🥇" : n === 2 ? "🥈" : n === 3 ? "🥉" : n + "등";
+  function rankingLine(g) {
+    if (g.teams < 3 || g.winner === null) return "";
+    return finalRanking(g).map(r => RANK_MEDAL(r.rank) + " " + teamName(r.team).replace(/^\S+ /, "") + (r.team === g.winner ? "" : " " + r.score + "점")).join(" · ");
+  }
+  // 순위표 (말판 위 우승 상자 · 시상식에 같이 써요)
+  function rankingTable(g) {
+    const box = document.createElement("div");
+    box.className = "rank-table";
+    finalRanking(g).forEach(function (r) {
+      const row = document.createElement("div");
+      row.className = "rank-line" + (r.team === g.winner ? " first" : "");
+      const md = document.createElement("span"); md.className = "md"; md.textContent = RANK_MEDAL(r.rank);
+      const nm = document.createElement("span"); nm.className = "tn"; nm.textContent = teamName(r.team).replace(/^\S+ /, "");
+      const pt = document.createElement("span"); pt.className = "pt";
+      pt.textContent = r.team === g.winner ? "다 골인!" : `${r.score}점`;
+      const dt = document.createElement("span"); dt.className = "dt";
+      dt.textContent = `골인 ${r.fin} · 판 위 ${r.board} · 대기 ${r.wait}`;
+      row.append(md, teamLogo(r.team, 26), nm, pt, dt);
+      box.appendChild(row);
+    });
+    return box;
+  }
+
   // 남은 결과 중 use번째로 from 자리의 말을 옮겨요 (메시지 · 소리 · 저장까지)
   function performMove(from, use) {
     const g = G();
     remember();
     const r = g.pending.splice(use, 1)[0];
     selected = null;
+    const hops = hopsFor(g, from.team, from.node, r);   // 콩콩 뛰어갈 길 (옮기기 전에 계산)
     const ev = applyMove(g, from.team, from.node, r);
+    attachHopEvents(hops, ev);
 
     const me = ANIMALS[from.team];
     const msgs = [];
@@ -2740,8 +3431,11 @@
     });
     if (!msgs.length) msgs.push(`${r}! ${me.emoji} 쏙 옮겼어요.`);
     say(sound === "tok" ? "info" : "good", msgs.join(" "));
-    playFx({ sound, confetti: celebrate ? from.team : null });
-    pendingFx = { sound, confetti: celebrate ? from.team : null, landed: landedAt };
+    // 말이 한 칸씩 콩콩 뛰어간 다음에 도착 소리·꽃가루
+    const hopMs = animateHops(hops);
+    if (hops.length) landedAt = null;
+    setTimeout(() => playFx({ sound, confetti: celebrate ? from.team : null }), hopMs);
+    pendingFx = { sound, confetti: celebrate ? from.team : null, landed: hops.length ? null : landedAt, hops };
 
     if (ev.won) {
       pendingFx.win = true;
@@ -2750,8 +3444,8 @@
       g.owed = 0;
       state.open = false;
       state.current = null;
-      say("good", `🎉🎉 ${teamName(from.team)} 승리!! 오늘의 주인공이에요! 🎉🎉 ('🔄 새로 하기'를 누르면 바로 다음 판!)`);
-      setTimeout(playWin, 400);
+      say("good", `🎉🎉 ${teamName(from.team)} 승리!! 오늘의 주인공이에요! 🎉🎉` + (g.teams >= 3 ? ` 최종 순위: ${rankingLine(g)}` : "") + " ('🔄 새로 하기'를 누르면 바로 다음 판!)");
+      setTimeout(playWin, 400 + hopMs);
       save();
       renderPlayers();
       renderGame();
@@ -3055,8 +3749,68 @@
     $("cheer").className = "";
   }
 
+  // =====================================================================
+  // ---------- 🏃 결과가 나오면 그 동물이 화면을 가로질러 달려요 ----------
+  // =====================================================================
+  // 도 = 돼지, 개 = 개, 걸 = 양, 윷 = 소, 모 = 말 (빽도는 돼지가 뒷걸음질)
+  const SHEEP_SVG = `<svg viewBox="0 0 100 100"><g fill="#fffdf7" stroke="#b9b0a0" stroke-width="2"><circle cx="50" cy="20" r="13"/><circle cx="72" cy="27" r="13"/><circle cx="81" cy="48" r="13"/><circle cx="74" cy="70" r="13"/><circle cx="50" cy="80" r="13"/><circle cx="26" cy="70" r="13"/><circle cx="19" cy="48" r="13"/><circle cx="28" cy="27" r="13"/><circle cx="50" cy="50" r="28"/></g><ellipse cx="25" cy="50" rx="11" ry="5.5" fill="#5b4a3f" transform="rotate(-25 25 50)"/><ellipse cx="75" cy="50" rx="11" ry="5.5" fill="#5b4a3f" transform="rotate(25 75 50)"/><ellipse cx="50" cy="57" rx="19" ry="23" fill="#5b4a3f"/><circle cx="50" cy="33" r="10" fill="#fffdf7"/><circle cx="42" cy="53" r="6" fill="#fff"/><circle cx="58" cy="53" r="6" fill="#fff"/><circle cx="43" cy="54" r="3" fill="#111"/><circle cx="57" cy="54" r="3" fill="#111"/><path d="M44 68 q6 5 12 0" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`;
+  const RUNNERS = {
+    "도": { svg: () => ANIMALS[2].svg, ms: 1700, hop: 0.30, label: "도!" },
+    "개": { svg: () => ANIMALS[3].svg, ms: 1350, hop: 0.22, label: "개!" },
+    "걸": { svg: () => SHEEP_SVG, ms: 1200, hop: 0.26, label: "걸!" },
+    "윷": { svg: () => ANIMALS[1].svg, ms: 1100, hop: 0.20, label: "윷!!" },
+    "모": { svg: () => ANIMALS[0].svg, ms: 800, hop: 0.16, label: "모!!!", dust: true },
+    "빽도": { svg: () => ANIMALS[2].svg, ms: 1900, hop: 0.34, label: "빽도…", back: true }
+  };
+  function runAnimal(name) {
+    const R = RUNNERS[name];
+    if (!R || reduceMotion) return;
+    const mat = $("mat").getBoundingClientRect();
+    const W = window.innerWidth, size = Math.min(110, Math.max(70, W * 0.2));
+    const y = Math.max(8, Math.min(window.innerHeight - size - 8, mat.top + mat.height / 2 - size / 2));
+    const el = document.createElement("div");
+    el.className = "runner";
+    el.style.top = y + "px";
+    el.style.width = el.style.height = size + "px";
+    const body = document.createElement("div");
+    body.className = "runner-body";
+    body.innerHTML = R.svg();
+    body.style.animationDuration = R.hop + "s";
+    const tag = document.createElement("span");
+    tag.className = "runner-tag";
+    tag.textContent = R.label;
+    el.append(body, tag);
+    document.body.appendChild(el);
+    // 빽도는 오른쪽에서 왼쪽으로 뒷걸음질 (얼굴은 그대로 앞을 봐요)
+    const from = R.back ? W + 20 : -size - 20, to = R.back ? -size - 20 : W + 20;
+    el.animate([{ transform: `translateX(${from}px)` }, { transform: `translateX(${to}px)` }], { duration: R.ms, easing: R.back ? "linear" : "cubic-bezier(.3,.1,.6,1)", fill: "forwards" });
+    if (R.dust) {   // 모: 말발굽 먼지가 뒤에 폴폴
+      for (let i = 1; i <= 6; i++) {
+        setTimeout(function () {
+          const d = document.createElement("span");
+          d.className = "runner-dust";
+          d.textContent = "💨";
+          const x = from + (to - from) * (i / 7);
+          d.style.left = x + "px";
+          d.style.top = (y + size * 0.62) + "px";
+          document.body.appendChild(d);
+          setTimeout(() => d.remove(), 700);
+        }, R.ms * (i / 7));
+      }
+    }
+    setTimeout(() => el.remove(), R.ms + 60);
+    // 윷·모: 멍석이 들썩!
+    if (isBonus(name)) {
+      const m = $("mat");
+      m.classList.remove("shake");
+      void m.offsetWidth;
+      m.classList.add("shake");
+    }
+  }
+
   // 결과 글씨 · 윷·모 응원 멘트 · 소리 (level = 이번 차례 몇 번째 윷·모인지)
   function showThrow(name, who, level) {
+    runAnimal(name);
     $("result").textContent = name === "낙" ? "낙(落)!" : name + "!";
     $("move").textContent = MOVES[name];
     if (name === "낙") playNak();
@@ -3096,9 +3850,11 @@
       outIdx: Math.floor(Math.random() * sticks.length)
     };
 
+    sheetUp(state.players[who].name);
     animateThrow(plan).then(function () {
       const name = resultOf(plan);
       remember();
+      sheetDownSoon(name);
 
       // 개인 기록: 같은 차례(윷·모, 잡기로 또 던진 것)는 이어서 적어요
       const p = state.players[who];
@@ -3212,7 +3968,17 @@
     ];
     const kings = $("kings");
     kings.innerHTML = "";
-    kingsDef.forEach(function (k) {
+    $("chips").hidden = !played.length;   // 기록이 없으면 순위 기준 버튼도 숨겨요
+    if (!played.length) {
+      const e = document.createElement("div");
+      e.className = "empty-state";
+      const ic = document.createElement("span"); ic.className = "empty-icon"; ic.setAttribute("aria-hidden", "true"); ic.textContent = "👑";
+      const tx = document.createElement("div");
+      tx.innerHTML = "<b>아직 기록이 없어요</b><br>첫 윷을 던지면 여기에 모왕 · 윷왕 · 빽도왕이 생겨요!";
+      e.append(ic, tx);
+      kings.appendChild(e);
+    }
+    if (played.length) kingsDef.forEach(function (k) {
       const card = document.createElement("div");
       card.className = "king";
       let who = "—", val = "아직 기록 없음", leaders = [];
@@ -3598,8 +4364,10 @@
       updateThrowBtn();
       clearThrowText();
       if (audio) playWhoosh();
+      sheetUp(lt.who);
       animateThrow(lt).then(function () {
         remoteBusy = false;
+        sheetDownSoon(lt.name);
         delete throwBtn.dataset.busy;
         applyLive(data, true);
         showThrow(lt.name, lt.who, lt.level);
@@ -3629,8 +4397,9 @@
       const fx = m.fx && typeof m.fx === "object" ? m.fx : null;
       if (withFx && fx) {
         landedAt = isNode(fx.landed) ? fx.landed : null;
-        playFx({ sound: has(SOUNDS, fx.sound) ? fx.sound : null, confetti: Number.isInteger(fx.confetti) ? fx.confetti : null });
-        if (fx.win === true) setTimeout(playWin, 400);
+        const hopMs = animateHops(cleanHops(fx.hops));   // 다른 사람이 옮긴 말도 똑같이 콩콩
+        setTimeout(() => playFx({ sound: has(SOUNDS, fx.sound) ? fx.sound : null, confetti: Number.isInteger(fx.confetti) ? fx.confetti : null }), hopMs);
+        if (fx.win === true) setTimeout(playWin, 400 + hopMs);
       }
     }
     renderAll();
@@ -3700,6 +4469,7 @@
   function writeSetup(slow) {
     if (!ON.isHost || !ON.canWrite || !setupWriter) return;
     clearTimeout(setupTimer);
+    ON.setup.host = ON.me;   // 내 화면에도 바로 '운영자' 표시 (서버에서 되돌아온 건 무시하니까)
     const go = () => setupWriter(clone(Object.assign({}, ON.setup, { host: ON.me, by: TAB })));
     if (slow) setupTimer = setTimeout(go, 500); else go();
   }
@@ -3728,7 +4498,7 @@
       el.textContent = "👀 지금은 구경만 할 수 있어요. 함께 하려면 운영자에게 '편집자'로 초대해 달라고 하세요.";
     } else {
       el.className = "online-bar";
-      el.textContent = `🌐 다 같이 보는 온라인 판이에요 · 참가 신청 ${Object.keys(ON.people).length}명 · 게임 참여 ${state.players.length}명`;
+      el.textContent = `🌐 온라인 판 · 신청 ${Object.keys(ON.people).length}명 · 참여 ${state.players.length}명`;
     }
   }
 
@@ -3752,10 +4522,10 @@
     btn.disabled = !changed || !meDraft.name.trim() || !!btn.dataset.busy;
     const inRoster = state.players.find(p => p.uid === ON.me);
     $("meNote").textContent = !mine
-      ? "이름과 사진을 올리고 '참가 신청'을 누르면, 운영자가 팀을 정해 줘요. (채팅창에서도 이 이름과 사진이 나와요)"
+      ? "이름 · 사진 → '참가 신청' → 운영자가 팀을 정해 줘요"
       : inRoster
-        ? `✅ ${teamName(inRoster.team)} 팀원이에요! 내 차례가 오면 위에서 내 이름을 누르고 던지세요.`
-        : "✅ 참가 신청 완료! 운영자가 팀을 정해 줄 때까지 기다려 주세요 ⏳";
+        ? `✅ ${teamName(inRoster.team)} 팀! 내 차례가 오면 알려 드려요`
+        : "✅ 신청 완료! 팀이 정해지길 기다려요 ⏳";
   }
   $("meName").addEventListener("input", function () {
     if (!meDraft) return;
@@ -3976,7 +4746,11 @@
   async function renderChat() {
     const fab = $("chatFab"), panel = $("chatPanel");
     if (!online()) { fab.hidden = true; panel.hidden = true; return; }
-    fab.hidden = chatOpen || TV;
+    fab.hidden = true;   // A안: 아래 '채팅' 탭을 써요
+    $("tabChat").classList.remove("off");   // 혼자 하는 판에서는 자리만 비워 둬요
+    $("tabChat").classList.toggle("on", chatOpen);
+    $("tabChatBadge").hidden = !unread;
+    $("tabChatBadge").textContent = unread > 99 ? "99+" : String(unread);
     panel.hidden = !chatOpen;
     const badge = $("chatBadge");
     badge.hidden = !unread;
@@ -4053,7 +4827,7 @@
     let cx, cy;
     if (inPanel) { cx = host.clientWidth / 2; cy = host.scrollTop + host.clientHeight * 0.6; }
     else if (TV) { cx = window.innerWidth / 2; cy = window.innerHeight / 2; }   // TV: 화면 한가운데서 펑!
-    else { const r = $("chatFab").getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2; }
+    else { const r = $("tabChat").getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2; }
     const bits = ["🎆", "🎇", "✨", "🎉", "🎊", "⭐", "💥"];
     for (let i = 0; i < 26; i++) {
       const b = document.createElement("span");
@@ -4081,7 +4855,7 @@
   function closeChat() {
     chatOpen = false;
     renderChat();
-    $("chatFab").focus();
+    $("tabChat").focus();
   }
   $("chatFab").addEventListener("click", openChat);
   $("chatToast").addEventListener("click", openChat);
@@ -4179,7 +4953,7 @@
     }, onDbError);
     db.doc(dbPath("live/game")).onSnapshot(function (snap) {
       onLive(snap.exists ? snap.data() : null);
-      if ($("msgBox").textContent.startsWith("온라인 판에 연결")) say("info", "이름을 누르고 윷을 던진 다음, 자기 팀 말을 끌어서 옮기세요!");
+      if ($("msgBox").textContent.startsWith("온라인 판에 연결")) say("info", "👆 이름 누르고 → 🥢 던지기 → 🐾 말 옮기기");
     }, onDbError);
     db.collection(dbPath("chat")).onSnapshot(onChatSnap, onDbError);
   })();
@@ -4246,7 +5020,7 @@
     if (on && ON.canWrite && ON.me) $("meCard").hidden = folded && registered;
     const t = $("setupToggle");
     t.hidden = TV || !gameStarted() || !(canSetup || registered);
-    t.textContent = setupOpen ? "⚙️ 설정 접기" : "⚙️ 설정 · 내 정보";
+    labelBtn(t, "gear", setupOpen ? "설정 접기" : "설정 · 내 정보");
     t.setAttribute("aria-expanded", setupOpen ? "true" : "false");
   }
   $("setupToggle").addEventListener("click", function () {
@@ -4309,7 +5083,6 @@
   // 🥢 바로 던지기: 알림창에서 누르면 멍석으로 가면서 그대로 던져요 (한 번만 누르면 끝)
   $("turnAlertGo").addEventListener("click", function () {
     hideTurnAlert();
-    $("mat").scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
     if (!throwBtn.disabled) throwBtn.click();
     else throwBtn.focus({ preventScroll: true });
   });
@@ -4322,7 +5095,7 @@
     }
   } catch (e) { }
   function renderDock() {
-    const show = !TV && !throwBtn.disabled && !throwVisible;
+    const show = false;   // A안: 아래 탭의 둥근 던지기 버튼이 늘 보여요
     $("dock").hidden = !show;
     if (show) $("dockBtn").textContent = throwBtn.textContent;
   }
@@ -4332,9 +5105,9 @@
   });
   // 다 던졌으면 말판(옮길 것 표시)이 보이게
   function scrollToBoard() {
-    const top = $("gameStatus").getBoundingClientRect().top;
-    if (top >= 0 && $("yutpan").getBoundingClientRect().bottom <= window.innerHeight) return;
-    $("gameStatus").scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" });
+    const r = $("yutpan").getBoundingClientRect();
+    if (r.top >= 0 && r.bottom <= window.innerHeight - 70) return;
+    $("yutpan").scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
   }
 
   // =====================================================================
@@ -4343,7 +5116,7 @@
   function setBig(on) {
     document.body.classList.toggle("big", on);
     $("bigBtn").setAttribute("aria-pressed", on ? "true" : "false");
-    $("bigBtn").textContent = on ? "🔠 보통 글씨" : "🔠 큰 글씨";
+    labelBtn($("bigBtn"), "text", on ? "보통 글씨" : "큰 글씨");
     try { localStorage.setItem("yut-big", on ? "1" : ""); } catch (e) { }
   }
   $("bigBtn").addEventListener("click", function () { setBig($("bigBtn").getAttribute("aria-pressed") !== "true"); });
@@ -4377,7 +5150,7 @@
     return ARTIFACT_URL;
   }
   function copyText(text, btn) {
-    const done = () => { const old = btn.textContent; btn.textContent = "✅ 복사했어요"; setTimeout(() => { btn.textContent = old; }, 2000); };
+    const done = () => { const old = Array.from(btn.childNodes); btn.textContent = "✅ 복사했어요"; setTimeout(() => { btn.replaceChildren(...old); }, 2000); };
     const fallback = function () {
       const ta = document.createElement("textarea");
       ta.value = text;
@@ -4665,7 +5438,7 @@
   let lastWinner;   // 처음 그릴 때는 '모름' → 이미 끝난 판을 열었을 때는 시상식을 안 띄워요
   function checkAward() {
     const w = G().winner;
-    if (lastWinner === null && w !== null) showAward(w);
+    if (lastWinner === null && w !== null) setTimeout(() => showAward(w), Math.max(0, hopBusyUntil - Date.now()) + 300);   // 마지막 말이 다 뛰어간 다음에
     if (w === null && !$("award").hidden) $("award").hidden = true;
     lastWinner = w;
   }
@@ -4681,6 +5454,10 @@
       s.append(avatar(p, 32), p.name);
       mem.appendChild(s);
     });
+    const rb = $("awardRankBox");
+    rb.innerHTML = "";
+    $("awardRank").hidden = G().teams < 3;
+    if (G().teams >= 3) rb.appendChild(rankingTable(G()));
     const list = $("awardList");
     list.innerHTML = "";
     awardList().forEach(function (x) {
@@ -4972,11 +5749,11 @@
     if (!aiAvailable()) return;
     const btn = this, team = currentTeam();
     btn.disabled = true;
-    btn.textContent = "🤖 생각하는 중… 🤔";
+    labelBtn(btn, "spark", "생각하는 중… 🤔");
     setTimeout(function () {
       const res = aiRecommend(G(), team);
       btn.disabled = false;
-      btn.textContent = "🤖 AI 추천 받기";
+      labelBtn(btn, "spark", "AI 추천 받기");
       const best = res.plans[0];
       if (!best || !best.steps.length) { say("info", "🤖 지금은 옮길 수 있는 말이 없어요."); return; }
       const ol = $("aiSteps");
@@ -5021,6 +5798,183 @@
     renderGame();
   });
 
+  // =====================================================================
+  // ---------- 📖 윷놀이 규칙 (전체 정리) ----------
+  // =====================================================================
+  // 결과 그림: 윷가락 4개 모양 (true = 배, 4번째가 ●표시 윷가락) — 진짜 판정(resultOf)과 똑같은지 시험에서 확인해요
+  const RULE_RESULTS = [
+    ["도", [true, false, false, false], "1칸"],
+    ["개", [true, true, false, false], "2칸"],
+    ["걸", [true, true, true, false], "3칸"],
+    ["윷", [true, true, true, true], "4칸 + 한 번 더"],
+    ["모", [false, false, false, false], "5칸 + 한 번 더"],
+    ["빽도", [false, false, false, true], "뒤로 1칸"]
+  ];
+  function drawRuleResults() {
+    const box = $("ruleResults");
+    if (box.childNodes.length) return;
+    RULE_RESULTS.forEach(function ([name, flats, move]) {
+      const card = document.createElement("div");
+      card.className = "rule-res";
+      const st = document.createElement("div");
+      st.className = "mini-sticks";
+      st.setAttribute("aria-hidden", "true");
+      flats.forEach(function (f, i) {
+        const s = document.createElement("span");
+        s.className = "ms " + (f ? "f" : "r") + (i === 3 && f ? " mark" : "");
+        st.appendChild(s);
+      });
+      const nm = document.createElement("div"); nm.className = "nm"; nm.textContent = name;
+      const mv = document.createElement("div"); mv.className = "mv"; mv.textContent = `배 ${flats.filter(Boolean).length}개 · ${move}`;
+      card.append(st, nm, mv);
+      box.appendChild(card);
+    });
+  }
+  function openRules() {
+    drawRuleResults();
+    $("rulesSheet").hidden = false;
+    $("rulesSheet").querySelector(".sheet").scrollTop = 0;
+    $("rulesClose").focus();
+  }
+  const closeRules = () => { $("rulesSheet").hidden = true; };
+  $("rulesBtn").addEventListener("click", openRules);
+  $("rulesFromGame").addEventListener("click", openRules);
+  $("rulesClose").addEventListener("click", closeRules);
+  $("rulesDone").addEventListener("click", closeRules);
+  $("rulesPractice").addEventListener("click", function () { closeRules(); openPractice(); });
+  $("rulesSheet").addEventListener("click", function (e) { if (e.target === this) closeRules(); });
+
+  // =====================================================================
+  // ---------- 📲 홈 화면에 추가 (GitHub판: 앱처럼 아이콘으로 열기) ----------
+  // =====================================================================
+  let installEvt = null;   // 안드로이드 크롬·삼성 인터넷이 주는 '설치' 기회
+  const isStandalone = () => { try { return window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) { return false; } };
+  const isIOS = () => typeof navigator !== "undefined" && /iPhone|iPad|iPod/.test(navigator.userAgent || "");
+  function renderInstall() {
+    const inApp = typeof navigator !== "undefined" && !!inAppName(navigator.userAgent || "");
+    $("installBtn").hidden = !hasRooms() || isStandalone() || inApp || !(installEvt || isIOS());
+  }
+  if (window.addEventListener) {
+    window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); installEvt = e; renderInstall(); });
+    window.addEventListener("appinstalled", function () { installEvt = null; renderInstall(); say("good", "📲 홈 화면에 추가됐어요! 이제 아이콘으로 바로 열 수 있어요."); });
+  }
+  $("installBtn").addEventListener("click", function () {
+    if (installEvt) {
+      const ev = installEvt;
+      ev.prompt();
+      Promise.resolve(ev.userChoice).catch(() => null).then(function () { installEvt = null; renderInstall(); });
+    } else {
+      $("installSheet").hidden = false;
+      $("installOk").focus();
+    }
+  });
+  $("installOk").addEventListener("click", function () { $("installSheet").hidden = true; });
+  $("installSheet").addEventListener("click", function (e) { if (e.target === this) this.hidden = true; });
+  renderInstall();
+
+  // =====================================================================
+  // ---------- 🖼️ 전용 아이콘 (이모지는 기기마다 모양이 달라서, 메뉴는 같은 선 그림으로) ----------
+  // =====================================================================
+  var ICON_PATHS = {   // var: 이 줄보다 먼저 불려도 오류 없이 '아직 없음'으로 보여요
+    sticks: '<rect x="3" y="4" width="3.4" height="16" rx="1.7"/><rect x="8.2" y="4" width="3.4" height="16" rx="1.7"/><rect x="13.4" y="4" width="3.4" height="16" rx="1.7"/><rect x="18.6" y="4" width="3.4" height="16" rx="1.7"/>',
+    help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5V14"/><circle cx="12" cy="17.2" r=".7" fill="currentColor"/>',
+    scroll: '<path d="M7 4h10a2 2 0 0 1 2 2v11"/><path d="M5 6a2 2 0 1 1 4 0v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1H11"/><path d="M12 9h4M12 13h4"/>',
+    book: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5"/><path d="M8.5 7.5h7"/>',
+    key: '<circle cx="8" cy="15" r="4"/><path d="M11 12l8.5-8.5M16 7l2.2 2.2M13.8 9.2l2 2"/>',
+    text: '<path d="M3 18l5-12 5 12M5 14h6"/><circle cx="17.5" cy="15.5" r="2.5"/><path d="M20 13v5"/>',
+    qr: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3M14 21h1"/>',
+    tv: '<rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>',
+    door: '<path d="M6 21V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17"/><path d="M3.5 21h17"/><circle cx="14.5" cy="12" r=".9" fill="currentColor"/>',
+    install: '<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 8v6M9 11h6"/>',
+    undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+    spark: '<path d="M11 3l1.9 4.9L18 10l-5.1 2.1L11 17l-1.9-4.9L4 10l5.1-2.1z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
+    chat: '<path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3.5 20.5l1.4-4.6A8.5 8.5 0 1 1 21 11.5z"/>',
+    link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+    mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5L12 13l8.5-6.5"/>',
+    board: '<rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M3 3l18 18M21 3L3 21"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/>',
+    chart: '<path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/>',
+    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>'
+  };
+  function iconEl(name) {
+    const sp = document.createElement("span");
+    sp.className = "ic";
+    sp.setAttribute("aria-hidden", "true");
+    sp.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON_PATHS[name]}</svg>`;
+    return sp;
+  }
+  // 버튼 글자를 [아이콘 + 글자]로 (글자가 바뀌는 버튼도 이걸로 바꿔요)
+  function labelBtn(btn, icon, text) {
+    const keep = Array.from(btn.children).filter(c => !c.classList.contains("ic"));   // 채팅 숫자 배지 같은 건 남겨요
+    btn.textContent = "";
+    if (ICON_PATHS && ICON_PATHS[icon]) btn.appendChild(iconEl(icon));
+    if (text) btn.appendChild(document.createTextNode(text));
+    keep.forEach(c => btn.appendChild(c));
+  }
+  const MENU_ICONS = [
+    ["practiceBtn", "sticks", "연습 던지기"], ["tourBtn", "help", "사용법 따라 보기"], ["aboutBtn", "scroll", "윷놀이란?"],
+    ["rulesBtn", "book", "윷놀이 규칙"], ["hostKeyBtn", "key", "운영자"], ["qrBtn", "qr", "QR 초대"], ["tvBtn", "tv", "TV 화면"],
+    ["roomBtn", "door", "방 만들기 · 들어가기"], ["installBtn", "install", "홈 화면에 추가"], ["undoBtn", "undo", "한 수 무르기"],
+    ["tvExit", "tv", "TV 화면 끄기"], ["roomCopy", "link", "방 링크 복사"], ["contactBtn", "mail", "문의"], ["chatFab", "chat", ""]
+  ];
+  MENU_ICONS.forEach(([id, icon, text]) => labelBtn($(id), icon, text));
+  labelBtn($("aiBtn"), "spark", "AI 추천 받기");
+  [["tabPlay", "board", "놀이"], ["tabRecord", "chart", "기록"], ["tabChat", "chat", "채팅"], ["tabMore", "menu", "더보기"], ["moreBtn", "menu", ""]]
+    .forEach(([id, icon, text]) => labelBtn($(id), icon, text));
+  setBig($("bigBtn").getAttribute("aria-pressed") === "true");   // 큰 글씨 버튼도 아이콘으로
+  renderPanels();
+
+  // =====================================================================
+  // ---------- 🅰 A안: 아래에서 올라오는 멍석 · 탭 · 더보기 ----------
+  // =====================================================================
+  let sheetTimer = null;
+  // 던질 때 멍석이 아래에서 쑥 (다른 사람이 던질 때도 똑같이 올라와서 같이 구경해요)
+  function sheetUp(name) {
+    clearTimeout(sheetTimer);
+    $("throwWho").textContent = name ? `🥢 ${name} 님이 던져요!` : "";
+    $("throwSheet").classList.add("up");
+  }
+  // 결과를 잠깐 보여 준 뒤 내려가요 (윷·모·낙은 조금 더 오래)
+  function sheetDownSoon(result) {
+    clearTimeout(sheetTimer);
+    const ms = result === "낙" ? 2600 : isBonus(result) ? 2200 : 1700;
+    sheetTimer = setTimeout(function () { if (!throwBtn.dataset.busy) $("throwSheet").classList.remove("up"); }, ms);
+  }
+  $("throwSheet").addEventListener("click", function () {   // 톡 누르면 바로 내려가요
+    if (throwBtn.dataset.busy) return;
+    clearTimeout(sheetTimer);
+    this.classList.remove("up");
+  });
+  // 탭: 놀이 / 기록 (채팅 · 더보기는 창으로 열려요)
+  function setTab(t) {
+    document.body.dataset.tab = t;
+    [["tabPlay", "play"], ["tabRecord", "record"]].forEach(function ([id, name]) {
+      $(id).classList.toggle("on", t === name);
+      if (t === name) $(id).setAttribute("aria-current", "page"); else $(id).removeAttribute("aria-current");
+    });
+    if (t === "record") renderBoard();
+    window.scrollTo(0, 0);
+  }
+  $("tabPlay").addEventListener("click", () => setTab("play"));
+  $("tabRecord").addEventListener("click", () => setTab("record"));
+  $("tabChat").addEventListener("click", function () { if (chatOpen) closeChat(); else openChat(); });
+  throwBtn.addEventListener("click", function () { if (document.body.dataset.tab === "record") setTab("play"); });
+  function openMore() {
+    $("moreSheet").hidden = false;
+    $("moreClose").focus();
+  }
+  const closeMore = () => { $("moreSheet").hidden = true; };
+  $("tabMore").addEventListener("click", openMore);
+  $("moreBtn").addEventListener("click", openMore);
+  $("moreClose").addEventListener("click", closeMore);
+  $("moreSheet").addEventListener("click", function (e) {
+    // 바깥을 누르거나 메뉴 하나를 고르면 닫혀요 (메뉴는 자기 일을 먼저 하고)
+    if (e.target === this || (e.target.closest && e.target.closest(".quick-btn"))) {
+      closeMore();
+      if (e.target.closest && e.target.closest("#setupToggle")) setTab("play");
+    }
+  });
+
   // ✉️ 문의: 누르면 이메일 주소를 보여 줘요 (다시 누르면 숨김)
   $("contactBtn").addEventListener("click", function () {
     const box = $("contactMail");
@@ -5032,7 +5986,10 @@
   // 새로 띄운 창들: Esc로 닫기
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
-    if (!$("roomSheet").hidden) $("roomSheet").hidden = true;
+    if (!$("moreSheet").hidden) closeMore();
+    else if (!$("installSheet").hidden) $("installSheet").hidden = true;
+    else if (!$("rulesSheet").hidden) closeRules();
+    else if (!$("roomSheet").hidden) $("roomSheet").hidden = true;
     else if (!$("qr").hidden) $("qr").hidden = true;
     else if (!$("award").hidden) closeAward();
     else if (!$("turnAlert").hidden) hideTurnAlert();
@@ -5178,18 +6135,18 @@
     { text: "🎉 친가회 윷놀이에 오신 걸 환영해요!\n처음 오신 분을 위해 화살표로 하나씩 알려 드릴게요." },
     { el: () => $("meCard"), when: () => online(), text: "먼저 내 이름을 적고 📷 사진을 올린 다음\n'참가 신청'을 눌러요.\n채팅창에도 이 이름과 사진이 나와요." },
     { el: () => $("setupBox"), when: () => !online(), text: "'게임 설정'을 열어서\n참여자 이름 · 팀 · 사진을 정해요." },
-    { el: () => $("practiceBtn"), finger: true, text: "떨리면 '연습 던지기'로 몸풀기!\n연습은 기록에 안 남고, 남들도 못 봐요 😊" },
+    { el: () => $("tabMore"), finger: true, text: "떨리면 아래 '더보기' → '연습 던지기'로 몸풀기!\n연습은 기록에 안 남고, 남들도 못 봐요 😊" },
     { el: () => $("playerList").children.length ? $("playerList") : $("turnHint"), text: "팀이 정해지면 여기에 이름이 나와요.\n내 차례가 되면 내 이름을 톡 눌러요." },
-    { el: () => throwBtn, finger: true, text: "빨간 버튼을 누르면\n윷가락이 휘리릭 날아가요! 🥢" },
-    { el: () => $("mat"), text: "떨어진 모양으로 결과가 정해져요.\n밝은 면(배)이 1개 도 · 2개 개 · 3개 걸\n4개 윷 · 0개 모 (윷·모는 한 번 더!)\n●만 밝으면 빽도, 선 밖으로 나가면 낙!" },
+    { el: () => throwBtn, finger: true, text: "가운데 빨간 동그라미 버튼을 누르면\n아래에서 멍석이 쑥 올라와\n윷가락이 휘리릭 날아가요! 🥢" },
+    { el: () => $("hud"), text: "떨어진 모양으로 결과가 정해져요.\n밝은 면(배)이 1개 도 · 2개 개 · 3개 걸\n4개 윷 · 0개 모 (윷·모는 한 번 더!)\n●만 밝으면 빽도, 선 밖으로 나가면 낙!\n누구 차례인지는 맨 위 줄에 늘 보여요." },
     { el: () => $("yutpan"), demo: "move", text: "결과가 나오면 우리 팀 말을 끌어서\n그 칸 수만큼 옮겨요. (걸이면 3칸!)\n처음 나가는 말은 아래 팀 칸에서 끌어와요." },
     { el: () => $("yutpan"), demo: "tap", text: "끌기가 어려우면\n말을 톡 → 갈 자리를 톡!\n잘못 놓으면 삐~ 소리와 함께 혼나요 😆" },
     { el: () => $("finishZone"), text: "한 바퀴 돌아 출발을 지나면 여기로 골인!\n말 4개가 먼저 다 들어온 팀이 이겨요 🏆" },
     { el: () => $("yutpan"), text: "어디로 옮길지 고민될 땐\n말판 위 '🤖 AI 추천 받기'를 눌러요.\n보기만 하고 닫아도 되고, '적용하기'를 누르면 대신 옮겨 줘요." },
-    { el: () => $("bigBtn"), finger: true, text: "글씨가 작으면 '🔠 큰 글씨'!\n'📱 QR 초대'로 가족을 부르고,\n'📺 TV 화면'으로 TV에 크게 띄울 수 있어요." },
-    { el: () => $("chatFab"), when: () => online(), finger: true, text: "💬 채팅으로 응원하고 놀리기!\n윷·모가 나오면 축포가 펑펑 🎆" },
-    { el: () => $("kings"), text: "아래 기록판에서\n모왕 · 윷왕 · 빽도왕을 볼 수 있어요 👑" },
-    { text: "준비 끝! 🙌\n언제든 맨 위 '❓ 사용법 따라 보기'로 다시 볼 수 있어요.\n재미있게 즐기세요!" }
+    { el: () => $("tabMore"), finger: true, text: "'더보기'에는 큰 글씨 · QR 초대 · TV 화면 ·\n윷놀이 규칙이 있어요." },
+    { el: () => $("tabChat"), when: () => online(), finger: true, text: "💬 채팅으로 응원하고 놀리기!\n윷·모가 나오면 축포가 펑펑 🎆" },
+    { el: () => $("tabRecord"), finger: true, text: "아래 '기록' 탭에서\n모왕 · 윷왕 · 빽도왕을 볼 수 있어요 👑" },
+    { text: "준비 끝! 🙌\n언제든 '더보기' → '사용법 따라 보기'로 다시 볼 수 있어요.\n재미있게 즐기세요!" }
   ];
   let tourList = [], tourAt = 0, tourTimer = null, demoTimer = null;
   const visible = el => !!el && !el.hidden && !el.closest("[hidden]") && el.getClientRects().length > 0;
@@ -5364,7 +6321,7 @@
   renderPlayers();
   renderGame();
   renderBoard();
-  if (!$("msgBox").textContent) say("info", "이름을 누르고 윷을 던진 다음, 자기 팀 말을 끌어서 옮기세요!");
+  if (!$("msgBox").textContent) say("info", "👆 이름 누르고 → 🥢 던지기 → 🐾 말 옮기기");
 </script>
 
 </body>

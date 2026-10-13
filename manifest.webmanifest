@@ -1,0 +1,16 @@
+{
+  "name": "친가회 윷놀이",
+  "short_name": "친가회 윷놀이",
+  "description": "친구·가족 모임에서 다 같이 하는 온라인 윷놀이",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7efe0",
+  "theme_color": "#c0392b",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
