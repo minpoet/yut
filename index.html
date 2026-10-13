@@ -1268,6 +1268,98 @@
   body.tv .game { max-width: min(100%, calc(100vh - 300px)); }
   body.tv .hud { position: static; }
 
+  /* =================================================================
+     👑 색감: 밝은 캐주얼 게임 톤 (하늘색~로열 블루 바탕 · 금색 테두리 · 반짝 초록 버튼)
+     휴대폰이 어두운 화면이어도 게임은 늘 같은 밝은 모습이에요 (일부러 한 가지 모습)
+     ================================================================= */
+  :root, :root:not([data-theme="light"]), :root[data-theme="dark"] {
+    --bg: #a6dcff;          /* 하늘색 바탕 (아래로 갈수록 진해져요) */
+    --panel: #ffffff;
+    --fg: #17306e;          /* 남색 글씨 */
+    --muted: #2f4479;       /* 흐린 글씨 (바탕·패널 모두 대비 5:1 이상) */
+    --line: #bcd5f2;
+    --wood-light: #ffe2a8; --wood-dark: #c4762c; --wood-line: #7a4419;   /* 윷가락·멍석은 나무 그대로 */
+    --accent: #d63a37; --accent-hover: #b92f2c; --on-accent: #ffffff;
+    --soft: #e5f1ff;
+    --flash: #ffe066;
+    --bar: #2f7be8;
+    --board: #fffaf0; --board-line: #2f5fc4;
+    --warn-bg: #ffe2de; --good-bg: #dcf6d2;
+    --water: #54c3ff; --gold: #ffc928;
+    --c-nak: #6a4bd8;
+    --t1: #ff4f8b; --t2: #2f8cff; --t3: #23b85a; --t4: #ffad14;
+    --start: #d63a37;
+    --btn: #1c8329; --btn-hover: #17701f;           /* 초록 버튼 (흰 글씨 대비 4.85) */
+    --royal: #1d4fb8; --royal-mid: #1f6fd6; --royal-dark: #123d8f;
+    --gold-dark: #b98200; --green-dark: #0f5a17;
+    --dim: rgba(10, 30, 80, 0.55);                  /* 창 뒤를 덮는 막 (남색) */
+    color-scheme: light;
+  }
+  html { background: #7ac6ff; }
+  body { background: linear-gradient(180deg, #c4eaff 0%, #a6dcff 40%, #7ac6ff 100%) var(--bg); min-height: 100vh; }
+
+  /* 제목: 흰 글씨 + 남색 외곽선 + 아래 그림자 (통통한 게임 제목) */
+  .appbar h1 { color: #ffffff; -webkit-text-stroke: 1.2px var(--fg); paint-order: stroke fill; text-shadow: 0 2px 0 var(--fg), 0 3px 6px rgba(18, 61, 143, 0.35); letter-spacing: 0.03em; }
+
+  /* 금색 테두리 패널 */
+  .hud, .tray, .other-card, .panel, .king, .me-card, .welcome, .inapp, .room-bar, .host-login, .about-sec, .rule-summary, .ai-box, .finish-zone, .team-group {
+    border-color: var(--gold) !important; border-width: 3px; border-style: solid;
+    background: var(--panel);
+    box-shadow: 0 4px 0 var(--gold-dark);
+  }
+  .tray.now, .other-card.now, .team-group.now { box-shadow: 0 4px 0 var(--gold-dark), 0 0 0 4px var(--tc); }
+  .sheet { background: var(--panel); border: 4px solid var(--gold); box-shadow: 0 6px 0 var(--gold-dark), 0 18px 40px rgba(18, 61, 143, 0.35); }
+  .throw-sheet { background: var(--panel); border-color: var(--gold); border-width: 4px; }
+  .msg.info { color: var(--fg); }
+  .msg.good { background: var(--good-bg); border: 2px solid #8fd97a; }
+  .msg.warn { border: 2px solid #ff9b8f; }
+  .pending-chip { background: var(--gold); color: var(--fg); box-shadow: 0 2px 0 var(--gold-dark); }
+
+  /* 말판: 크림색 판 + 금색 액자 + 파란 선 · 금색 모서리 · 빨간 참먹이 */
+  .yutpan { background: var(--board); border: 5px solid var(--gold); box-shadow: 0 6px 0 var(--gold-dark), inset 0 0 0 3px #fff3c4; }
+  .yutpan .spot { fill: #ffffff; stroke: var(--board-line); }
+  .yutpan .spot.big { fill: #ffd75e; }
+  .yutpan .spot.start { fill: var(--start); stroke: #8e1f1d; }
+  .yutpan .spot-label.in { fill: var(--fg); }
+  .yutpan .field-name { fill: var(--board-line); opacity: 0.35; }
+
+  /* 버튼: 반짝이는 입체 버튼 (두꺼운 테두리 + 아래 그림자 + 위쪽 빛) */
+  .again-btn, .small-btn.danger, #throwBtn, .dock button {
+    background: var(--btn); color: #ffffff; border: 3px solid var(--green-dark);
+    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.35), 0 4px 0 var(--green-dark);
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+  }
+  .again-btn:hover, .small-btn.danger:hover, #throwBtn:hover:not(:disabled) { background: var(--btn-hover); }
+  .again-btn:active, .small-btn.danger:active { box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.3), 0 1px 0 var(--green-dark); }
+  #throwBtn { border: 5px solid var(--gold); box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.35), 0 5px 0 var(--gold-dark), 0 8px 18px rgba(18, 61, 143, 0.35); }
+  #throwBtn:disabled { background: #8aa0c8; border-color: #d6e2f5; text-shadow: none; }
+  .quick-btn, .small-btn, .icon-btn {
+    background: var(--royal-mid); color: #ffffff; border: 3px solid var(--royal-dark);
+    box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.3), 0 3px 0 var(--royal-dark);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+  }
+  .quick-btn:hover, .small-btn:hover, .icon-btn:hover:not(:disabled) { background: var(--royal); }
+  .quick-btn[aria-pressed="true"], .quick-btn[aria-expanded="true"] { background: var(--gold); color: var(--fg); border-color: var(--gold-dark); text-shadow: none; box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.4), 0 3px 0 var(--gold-dark); }
+  .ai-btn { background: #6a4bd8; color: #ffffff; border: 3px solid #3f2a96; box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.3), 0 3px 0 #3f2a96; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3); }
+  .ai-btn:hover { background: #5a3cc6; }
+  .player-btn { border: 3px solid var(--royal-dark); background: #ffffff; }
+  .player-btn[aria-pressed="true"] { background: var(--royal-mid); border-color: var(--royal-dark); color: #ffffff; }
+  .link-btn { color: var(--fg); }
+  .chip { border: 2px solid var(--royal-mid); background: #ffffff; }
+  .chip[aria-pressed="true"] { background: var(--royal-mid); color: #ffffff; border-color: var(--royal-dark); }
+  .menu-btn { background: var(--gold); color: var(--fg); border-color: var(--gold-dark); text-shadow: none; box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.45), 0 3px 0 var(--gold-dark); }
+
+  /* 아래 탭: 진한 로열 블루 + 금색 선, 고른 탭은 금색 */
+  .tabbar { background: linear-gradient(180deg, #2a64d0 0%, var(--royal) 100%); border-top: 3px solid var(--gold); box-shadow: 0 -4px 14px rgba(18, 61, 143, 0.3); }
+  .tab { color: #dbe8ff; }
+  .tab.on { color: var(--gold); }
+  .tab-badge { background: var(--accent); }
+
+  /* 기록판 막대 · 순위 */
+  .rank-bar { background: var(--royal-mid); }
+  .rank-line.first { background: #fff3c4; }
+  .board-head h2, .board h3 { color: var(--fg); }
+
   @media (prefers-reduced-motion: reduce) {
     .pop, .tremble, .flash, .token.landed, .msg.warn, .chat-cheer.new, .tour-arrow, .tour-finger,
     .award-animal, .alert-card .big-face, .ai-svg .arrow, .runner-body, .shake, #throwBtn { animation: none !important; }
@@ -1289,7 +1381,7 @@
 <meta property="og:image:alt" content="친가회 윷놀이 - 멍석 위 윷가락과 마가·우가·저가·구가 네 팀 동물">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#c0392b">
+<meta name="theme-color" content="#1d4fb8">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
