@@ -3484,6 +3484,10 @@
     "빽도": "빽도… 연습이라 다행이에요 😅"
   };
   function recordPractice(name) { practiceTally[name]++; }
+  // 낙이 어떤 모습인지 보여 주려고, 연습 3번째는 꼭 낙이 나와요
+  const PRACTICE_NAK_AT = 3;
+  let practiceThrows = 0;
+  function practiceNak(throwNo) { return throwNo === PRACTICE_NAK_AT || Math.random() < (state.nakRate || 0); }
   function renderTally() {
     const box = $("pTally");
     box.innerHTML = "";
@@ -3523,7 +3527,7 @@
     $("pMove").innerHTML = "&nbsp;";
     const plan = {
       flats: Array.from(pSticks, () => Math.random() < 0.5),
-      nak: Math.random() < (state.nakRate || 0),
+      nak: practiceNak(++practiceThrows),
       outIdx: Math.floor(Math.random() * pSticks.length)
     };
     animateThrow(plan, { sticks: pSticks, mat: $("pMat"), bounds: $("pSheet") }).then(function () {
